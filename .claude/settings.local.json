@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p app/Http/Controllers/Api/Admin app/Http/Requests app/Services app/Repositories)",
+      "Bash(New-Item -ItemType File -Path \"app/Http/Controllers/Api/.gitkeep\" -Force)",
+      "Bash(Out-Null)",
+      "Bash(New-Item -ItemType File -Path \"app/Http/Controllers/Api/Admin/.gitkeep\" -Force)",
+      "Bash(New-Item -ItemType File -Path \"app/Http/Requests/.gitkeep\" -Force)",
+      "Bash(New-Item -ItemType File -Path \"app/Services/.gitkeep\" -Force)",
+      "Bash(New-Item -ItemType File -Path \"app/Repositories/.gitkeep\" -Force)",
+      "Bash(mkdir -p \"D:\\\\My_Projects\\\\02-PersonalAndSchoolProjects\\\\web-porto-nma225\\\\backend\\\\app\\\\Http\\\\Controllers\\\\Api\\\\Admin\" \"D:\\\\My_Projects\\\\02-PersonalAndSchoolProjects\\\\web-porto-nma225\\\\backend\\\\app\\\\Http\\\\Requests\" \"D:\\\\My_Projects\\\\02-PersonalAndSchoolProjects\\\\web-porto-nma225\\\\backend\\\\app\\\\Services\" \"D:\\\\My_Projects\\\\02-PersonalAndSchoolProjects\\\\web-porto-nma225\\\\backend\\\\app\\\\Repositories\")",
+      "Bash(touch \"D:\\\\My_Projects\\\\02-PersonalAndSchoolProjects\\\\web-porto-nma225\\\\backend\\\\app\\\\Http\\\\Controllers\\\\Api\\\\.gitkeep\" \"D:\\\\My_Projects\\\\02-PersonalAndSchoolProjects\\\\web-porto-nma225\\\\backend\\\\app\\\\Http\\\\Controllers\\\\Api\\\\Admin\\\\.gitkeep\" \"D:\\\\My_Projects\\\\02-PersonalAndSchoolProjects\\\\web-porto-nma225\\\\backend\\\\app\\\\Http\\\\Requests\\\\.gitkeep\" \"D:\\\\My_Projects\\\\02-PersonalAndSchoolProjects\\\\web-porto-nma225\\\\backend\\\\app\\\\Services\\\\.gitkeep\" \"D:\\\\My_Projects\\\\02-PersonalAndSchoolProjects\\\\web-porto-nma225\\\\backend\\\\app\\\\Repositories\\\\.gitkeep\")",
+      "Bash(php artisan *)",
+      "Bash(npm create *)",
+      "Bash(npm install *)"
+    ]
+  }
+}
