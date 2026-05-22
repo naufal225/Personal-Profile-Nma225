@@ -18,8 +18,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         HeroContent::create([
-            'headline' => 'Full-Stack Web Developer',
-            'subheadline' => 'I build clean, fast, and maintainable web applications using Laravel and React. Currently open to freelance projects and full-time opportunities.',
+            'headline' => 'Backend-Focused Full-Stack Developer',
+            'subheadline' => 'I design and build scalable web systems with a strong focus on backend architecture, performance, and maintainability. Experienced in Laravel, REST APIs, SQL, and modern web workflows.',
             'available_for_work' => true,
             'photo_path' => null,
             'resume_url' => null,
