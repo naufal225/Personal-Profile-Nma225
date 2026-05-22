@@ -1,6 +1,7 @@
 import SectionHeader from '../ui/SectionHeader'
 import Container from '../ui/Container'
 import Card from '../ui/Card'
+import Carousel from '../ui/Carousel'
 
 const typeLabel = {
   training: 'Training',
@@ -38,8 +39,8 @@ export default function CertificatesSection({ certificates }) {
         />
 
         {!certificates ? (
-          <div className="grid sm:grid-cols-2 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 py-4">
+            {Array.from({ length: 2 }).map((_, i) => (
               <div
                 key={i}
                 className="h-32 rounded-2xl border border-slate-200 dark:border-white/[0.06] bg-slate-100 dark:bg-white/[0.02] animate-pulse"
@@ -47,11 +48,11 @@ export default function CertificatesSection({ certificates }) {
             ))}
           </div>
         ) : (
-          <div className="grid sm:grid-cols-2 gap-4">
+          <Carousel>
             {certificates.map((cert) => {
               const style = typeStyle[cert.type] ?? 'bg-slate-100 dark:bg-zinc-500/10 text-slate-700 dark:text-zinc-300 border-slate-200 dark:border-zinc-400/30'
               return (
-                <Card key={cert.id} className="!p-5">
+                <Card key={cert.id} className="!p-5 h-full">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <h4 className="text-sm sm:text-[15px] font-semibold text-slate-900 dark:text-white leading-snug tracking-tight">
                       {cert.title}
@@ -80,7 +81,7 @@ export default function CertificatesSection({ certificates }) {
                 </Card>
               )
             })}
-          </div>
+          </Carousel>
         )}
       </Container>
     </section>

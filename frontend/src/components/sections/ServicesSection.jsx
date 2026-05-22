@@ -2,7 +2,7 @@ import { useState } from 'react'
 import SectionHeader from '../ui/SectionHeader'
 import Container from '../ui/Container'
 
-const WHATSAPP_URL = 'https://wa.me/62XXXXXXXXXX'
+const WHATSAPP_URL = 'https://wa.me/6288971155133'
 
 const SERVICES_DATA = [
   {
@@ -145,7 +145,7 @@ export default function ServicesSection() {
 
         <div
           key={activeId}
-          className="animate-fade-in-up grid gap-5 lg:grid-cols-3 items-stretch"
+          className="grid items-stretch gap-5 animate-fade-in-up lg:grid-cols-3"
         >
           {active.tiers.map((tier) => (
             <TierCard key={tier.name} tier={tier} />

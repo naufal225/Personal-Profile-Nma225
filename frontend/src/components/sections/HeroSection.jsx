@@ -2,7 +2,7 @@ import Container from '../ui/Container'
 
 export default function HeroSection({ hero }) {
   return (
-    <section id="about" className="relative pt-20 sm:pt-24 lg:pt-28 pb-20 sm:pb-24 overflow-hidden">
+    <section id="about" className="relative min-h-screen pt-20 sm:pt-24 lg:pt-28 pb-20 sm:pb-24 overflow-hidden flex flex-col justify-center">
       {/* Decorative gradient blob */}
       <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-[640px] h-[640px] max-w-[120vw] rounded-full bg-gradient-to-br from-violet-400/25 via-indigo-400/15 to-transparent dark:from-violet-500/20 dark:via-indigo-500/10 blur-3xl" />
       {/* Subtle grid */}
