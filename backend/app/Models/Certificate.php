@@ -15,5 +15,6 @@ class Certificate extends Model
         'year',
         'type',
         'credential_url',
+        'order',
     ];
 }

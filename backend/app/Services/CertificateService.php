@@ -29,4 +29,14 @@ class CertificateService
     {
         $this->repository->delete($id);
     }
+
+    public function find(int $id): Certificate
+    {
+        return $this->repository->find($id);
+    }
+
+    public function reorder(array $items): void
+    {
+        $this->repository->reorder($items);
+    }
 }

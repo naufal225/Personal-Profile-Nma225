@@ -13,6 +13,11 @@ class Service extends Model
         'title',
         'description',
         'icon',
+        'metadata',
         'order',
+    ];
+
+    protected $casts = [
+        'metadata' => 'array',
     ];
 }

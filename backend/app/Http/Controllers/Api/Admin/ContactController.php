@@ -35,4 +35,10 @@ class ContactController extends Controller
         $this->service->delete($id);
         return response()->json(['success' => true, 'message' => 'Deleted']);
     }
+
+    public function show(int $id): JsonResponse
+    {
+        $data = $this->service->find($id);
+        return response()->json(['success' => true, 'data' => $data]);
+    }
 }

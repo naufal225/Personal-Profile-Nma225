@@ -7,6 +7,7 @@ use App\Http\Requests\StoreCertificateRequest;
 use App\Http\Requests\UpdateCertificateRequest;
 use App\Services\CertificateService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class CertificateController extends Controller
 {
@@ -34,5 +35,17 @@ class CertificateController extends Controller
     {
         $this->service->delete($id);
         return response()->json(['success' => true, 'message' => 'Deleted']);
+    }
+
+    public function reorder(Request $request): JsonResponse
+    {
+        $this->service->reorder($request->input('items', []));
+        return response()->json(['success' => true, 'message' => 'Reordered']);
+    }
+
+    public function show(int $id): JsonResponse
+    {
+        $data = $this->service->find($id);
+        return response()->json(['success' => true, 'data' => $data]);
     }
 }

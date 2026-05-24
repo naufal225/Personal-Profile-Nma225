@@ -12,7 +12,9 @@
       "Bash(touch \"D:\\\\My_Projects\\\\02-PersonalAndSchoolProjects\\\\web-porto-nma225\\\\backend\\\\app\\\\Http\\\\Controllers\\\\Api\\\\.gitkeep\" \"D:\\\\My_Projects\\\\02-PersonalAndSchoolProjects\\\\web-porto-nma225\\\\backend\\\\app\\\\Http\\\\Controllers\\\\Api\\\\Admin\\\\.gitkeep\" \"D:\\\\My_Projects\\\\02-PersonalAndSchoolProjects\\\\web-porto-nma225\\\\backend\\\\app\\\\Http\\\\Requests\\\\.gitkeep\" \"D:\\\\My_Projects\\\\02-PersonalAndSchoolProjects\\\\web-porto-nma225\\\\backend\\\\app\\\\Services\\\\.gitkeep\" \"D:\\\\My_Projects\\\\02-PersonalAndSchoolProjects\\\\web-porto-nma225\\\\backend\\\\app\\\\Repositories\\\\.gitkeep\")",
       "Bash(php artisan *)",
       "Bash(npm create *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(Test-Path *)"
     ]
   }
 }

@@ -4,105 +4,15 @@ import Container from '../ui/Container'
 
 const WHATSAPP_URL = 'https://wa.me/6288971155133'
 
-const SERVICES_DATA = [
-  {
-    id: 'kontraktor',
-    label: 'Kontraktor',
-    tiers: [
-      {
-        name: 'Basic',
-        price: 'Rp3.250.000',
-        recommended: false,
-        note: 'Cocok untuk kontraktor yang ingin tampil profesional secara online.',
-        features: [
-          'Website company profile statis',
-          'Halaman: Home, Tentang, Layanan, Portfolio, Kontak',
-          'Tombol kontak WhatsApp',
-          'Mobile responsive',
-          'Domain .com 1 tahun',
-          'Shared hosting 1 tahun',
-          'SSL',
-        ],
-      },
-      {
-        name: 'Professional',
-        price: 'Rp5.250.000',
-        recommended: true,
-        note: 'Untuk kontraktor yang ingin kelola konten mandiri tanpa developer.',
-        features: [
-          'Semua yang ada di Basic, plus:',
-          'CMS portfolio proyek',
-          'Update proyek mandiri',
-          'Galeri proyek dinamis',
-          'SEO basic',
-          'Halaman layanan dinamis',
-        ],
-      },
-      {
-        name: 'Business',
-        price: 'Rp8.250.000',
-        recommended: false,
-        note: 'Solusi lengkap untuk kontraktor skala menengah ke atas.',
-        features: [
-          'Semua yang ada di Professional, plus:',
-          'Inquiry form penawaran',
-          'Permintaan penawaran masuk ke email admin',
-          'Upload company profile PDF',
-          'Multi layanan',
-          'Form otomatis ke WhatsApp / email admin',
-        ],
-      },
-    ],
-  },
-  {
-    id: 'klinik',
-    label: 'Klinik',
-    tiers: [
-      {
-        name: 'Basic',
-        price: 'Rp3.750.000',
-        recommended: false,
-        note: 'Untuk klinik yang ingin punya kehadiran online yang kredibel.',
-        features: [
-          'Profil klinik',
-          'Halaman: Layanan, Dokter, Maps, Kontak',
-          'Domain 1 tahun',
-          'Hosting 1 tahun',
-          'SSL',
-        ],
-      },
-      {
-        name: 'Professional',
-        price: 'Rp5.750.000',
-        recommended: true,
-        note: 'Untuk klinik yang ingin aktif publish konten dan info dokter.',
-        features: [
-          'Semua yang ada di Basic, plus:',
-          'CMS artikel kesehatan',
-          'Jadwal dokter editable',
-          'Promo layanan',
-          'Galeri fasilitas',
-        ],
-      },
-      {
-        name: 'Business',
-        price: 'Rp8.750.000',
-        recommended: false,
-        note: 'Untuk klinik yang ingin terima reservasi langsung dari website.',
-        features: [
-          'Semua yang ada di Professional, plus:',
-          'Booking form reservasi layanan',
-          'Notifikasi email ke admin',
-          'Booking diteruskan ke WhatsApp admin',
-        ],
-      },
-    ],
-  },
-]
+export default function ServicesSection({ services }) {
+  const categories = (services ?? []).map((s) => ({
+    id: s.icon,
+    label: s.title,
+    tiers: s.metadata?.tiers ?? [],
+  }))
 
-export default function ServicesSection() {
-  const [activeId, setActiveId] = useState('kontraktor')
-  const active = SERVICES_DATA.find((c) => c.id === activeId) ?? SERVICES_DATA[0]
+  const [activeId, setActiveId] = useState(null)
+  const active = categories.find((c) => c.id === (activeId ?? categories[0]?.id)) ?? categories[0]
 
   return (
     <section id="services" className="py-20 sm:py-24">
@@ -118,39 +28,54 @@ export default function ServicesSection() {
           subtitle="Paket harga website siap pakai untuk bisnis Anda. Pilih kategori dan tier yang sesuai."
         />
 
-        <div className="flex justify-center mb-10 sm:mb-12">
-          <div role="tablist" aria-label="Service categories" className="inline-flex gap-2 p-1 rounded-full border border-[#3B82F6]/25 bg-white/60 dark:bg-[#0A1628]/60 dark:border-[#3B82F6]/15">
-            {SERVICES_DATA.map((cat) => {
-              const isActive = cat.id === activeId
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  onClick={() => setActiveId(cat.id)}
-                  className={
-                    'px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200 ' +
-                    (isActive
-                      ? 'bg-[#3B82F6] text-white shadow-[0_0_20px_rgba(59,130,246,0.25)]'
-                      : 'bg-transparent text-[#475569] dark:text-[#64748B] border border-[#3B82F6]/30 dark:border-[#3B82F6]/20 hover:border-[#3B82F6]/60 dark:hover:border-[#3B82F6]/40 hover:text-[#1E3A8A] dark:hover:text-[#94A3B8]')
-                  }
-                >
-                  {cat.label}
-                </button>
-              )
-            })}
+        {!services ? (
+          <div className="animate-pulse space-y-8">
+            <div className="flex justify-center">
+              <div className="h-10 w-56 bg-slate-200 dark:bg-white/[0.05] rounded-full" />
+            </div>
+            <div className="grid lg:grid-cols-3 gap-5">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-96 bg-slate-200 dark:bg-white/[0.05] rounded-xl" />
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <>
+            <div className="flex justify-center mb-10 sm:mb-12">
+              <div role="tablist" aria-label="Service categories" className="inline-flex gap-2 p-1 rounded-full border border-[#3B82F6]/25 bg-white/60 dark:bg-[#0A1628]/60 dark:border-[#3B82F6]/15">
+                {categories.map((cat) => {
+                  const isActive = cat.id === (activeId ?? categories[0]?.id)
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={isActive}
+                      onClick={() => setActiveId(cat.id)}
+                      className={
+                        'px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200 ' +
+                        (isActive
+                          ? 'bg-[#3B82F6] text-white shadow-[0_0_20px_rgba(59,130,246,0.25)]'
+                          : 'bg-transparent text-[#475569] dark:text-[#64748B] border border-[#3B82F6]/30 dark:border-[#3B82F6]/20 hover:border-[#3B82F6]/60 dark:hover:border-[#3B82F6]/40 hover:text-[#1E3A8A] dark:hover:text-[#94A3B8]')
+                      }
+                    >
+                      {cat.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
 
-        <div
-          key={activeId}
-          className="grid items-stretch gap-5 animate-fade-in-up lg:grid-cols-3"
-        >
-          {active.tiers.map((tier) => (
-            <TierCard key={tier.name} tier={tier} />
-          ))}
-        </div>
+            <div
+              key={active?.id}
+              className="grid items-stretch gap-5 animate-fade-in-up lg:grid-cols-3"
+            >
+              {(active?.tiers ?? []).map((tier) => (
+                <TierCard key={tier.name} tier={tier} />
+              ))}
+            </div>
+          </>
+        )}
       </Container>
     </section>
   )
@@ -183,7 +108,7 @@ function TierCard({ tier }) {
       <div className="my-5 border-t-[0.5px] border-[rgba(59,130,246,0.2)] dark:border-[rgba(59,130,246,0.1)]" />
 
       <ul className="space-y-3">
-        {tier.features.map((feature, idx) => {
+        {(tier.features ?? []).map((feature, idx) => {
           const isPlusLine = tier.name !== 'Basic' && idx === 0
           return (
             <li

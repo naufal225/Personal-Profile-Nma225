@@ -42,4 +42,10 @@ class ProjectController extends Controller
         $this->service->reorder($request->input('items', []));
         return response()->json(['success' => true, 'message' => 'Reordered']);
     }
+
+    public function show(int $id): JsonResponse
+    {
+        $data = $this->service->find($id);
+        return response()->json(['success' => true, 'data' => $data]);
+    }
 }

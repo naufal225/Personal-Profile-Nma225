@@ -14,14 +14,15 @@ class UpdateProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
-            'tech_stacks' => ['required', 'array'],
-            'tech_stacks.*' => ['string'],
-            'github_url' => ['nullable', 'url', 'max:500'],
-            'demo_url' => ['nullable', 'url', 'max:500'],
-            'thumbnail_path' => ['nullable', 'string', 'max:255'],
-            'order' => ['nullable', 'integer'],
+            'title'          => ['required', 'string', 'max:255'],
+            'description'    => ['required', 'string'],
+            'tech_stacks'    => ['nullable', 'array'],
+            'tech_stacks.*'  => ['string'],
+            'github_url'     => ['nullable', 'url', 'max:500'],
+            'demo_url'       => ['nullable', 'url', 'max:500'],
+            'order'          => ['nullable', 'integer'],
+            'thumbnail_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'thumbnail_url'  => ['nullable', 'max:500'],
         ];
     }
 }

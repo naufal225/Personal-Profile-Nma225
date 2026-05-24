@@ -29,4 +29,9 @@ class EducationService
     {
         $this->repository->delete($id);
     }
+
+    public function find(int $id): Education
+    {
+        return $this->repository->find($id);
+    }
 }

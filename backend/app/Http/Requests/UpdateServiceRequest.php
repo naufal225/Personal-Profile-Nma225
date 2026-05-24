@@ -18,6 +18,7 @@ class UpdateServiceRequest extends FormRequest
             'description' => ['required', 'string'],
             'icon' => ['required', 'string', 'max:100'],
             'order' => ['nullable', 'integer'],
+            'metadata' => ['nullable', 'array'],
         ];
     }
 }

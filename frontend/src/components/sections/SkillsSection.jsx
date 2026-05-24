@@ -1,6 +1,6 @@
 import SectionHeader from '../ui/SectionHeader'
 import Container from '../ui/Container'
-import { getTechIcon } from '../../utils/techIcons'
+import IconDisplay from '../ui/IconDisplay'
 
 export default function SkillsSection({ skills }) {
   return (
@@ -62,7 +62,7 @@ function SkillsGrouped({ skills }) {
                 className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-white/[0.05] hover:bg-violet-50 dark:hover:bg-violet-500/[0.06] hover:border-violet-300 dark:hover:border-violet-500/30 hover:text-violet-700 dark:hover:text-white transition-all duration-300 group"
               >
                 <div className="flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/5 group-hover:bg-violet-100 dark:group-hover:bg-violet-500/10 group-hover:border-violet-300 dark:group-hover:border-violet-400/20 group-hover:scale-105 transition-all duration-300">
-                  {getTechIcon(s.icon || s.name, 18)}
+                  <IconDisplay icon={s.icon} name={s.name} size={18} />
                 </div>
                 <span className="text-xs sm:text-sm font-medium tracking-wide">
                   {s.name}
