@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { login as apiLogin, logout as apiLogout, me as apiMe } from '../api/auth'
+import { saveToken, removeToken } from '../api/client'
 import useAuthStore from '../store/authStore'
 
 export function useAuth() {
@@ -9,7 +10,8 @@ export function useAuth() {
 
   const login = async (email, password) => {
     const res = await apiLogin({ email, password })
-    setUser(res.data.data)
+    saveToken(res.data.data.token)
+    setUser(res.data.data.user)
     navigate('/dashboard')
   }
 
@@ -19,6 +21,7 @@ export function useAuth() {
     } catch (_) {
       // proceed even if request fails
     }
+    removeToken()
     reset()
     navigate('/login')
   }
