@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
         User::create([
             'name' => 'Naufal Maruf Ashrori',
             'email' => 'naufalmarufashrori225@gmail.com',
-            'password' => Hash::make('password'),
+            'password' => 'NmaPortfolio225',
         ]);
 
         HeroContent::create([
