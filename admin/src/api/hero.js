@@ -6,6 +6,5 @@ export const adminUpdateHero = (data) => apiClient.put('/admin/hero', data)
 
 
 export const adminUpdateHeroWithFile = (formData) => {
-  formData.append('_method', 'PUT')
   return apiClient.post('/admin/hero', formData)
 }
