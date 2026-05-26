@@ -11,7 +11,7 @@ class CertificateRepository
 
     public function getAll(): Collection
     {
-        return $this->model->orderBy('year', 'desc')->get();
+        return $this->model->orderBy('order', 'asc')->orderBy('year', 'desc')->get();
     }
 
     public function find(int $id): Certificate
@@ -34,5 +34,12 @@ class CertificateRepository
     public function delete(int $id): void
     {
         $this->find($id)->delete();
+    }
+
+    public function reorder(array $items): void
+    {
+        foreach ($items as $item) {
+            $this->model->where('id', $item['id'])->update(['order' => $item['order']]);
+        }
     }
 }

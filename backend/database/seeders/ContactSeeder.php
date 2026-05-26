@@ -20,22 +20,22 @@ class ContactSeeder extends Seeder
             [
                 'type' => 'github',
                 'label' => 'GitHub',
-                'value' => 'github.com/naufalmarufashrori',
-                'url' => 'https://github.com/naufalmarufashrori',
+                'value' => 'github.com/naufal225',
+                'url' => 'https://github.com/naufal225',
                 'order' => 2,
             ],
             [
                 'type' => 'linkedin',
                 'label' => 'LinkedIn',
-                'value' => 'linkedin.com/in/naufalmarufashrori',
-                'url' => 'https://linkedin.com/in/naufalmarufashrori',
+                'value' => 'linkedin.com/in/naufal225',
+                'url' => 'https://linkedin.com/in/naufal225',
                 'order' => 3,
             ],
             [
                 'type' => 'whatsapp',
                 'label' => 'WhatsApp',
-                'value' => '+62 812-3456-7890',
-                'url' => 'https://wa.me/6281234567890',
+                'value' => '+62 812-9552-0921',
+                'url' => 'https://wa.me/6281295520921',
                 'order' => 4,
             ],
         ];

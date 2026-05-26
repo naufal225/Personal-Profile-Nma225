@@ -34,4 +34,9 @@ class ServiceService
     {
         $this->repository->reorder($items);
     }
+
+    public function find(int $id): Service
+    {
+        return $this->repository->find($id);
+    }
 }

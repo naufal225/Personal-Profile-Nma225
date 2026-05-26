@@ -29,4 +29,9 @@ class ContactService
     {
         $this->repository->delete($id);
     }
+
+    public function find(int $id): Contact
+    {
+        return $this->repository->find($id);
+    }
 }

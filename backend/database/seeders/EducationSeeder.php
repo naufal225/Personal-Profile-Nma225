@@ -11,18 +11,25 @@ class EducationSeeder extends Seeder
     {
         $educations = [
             [
-                'institution' => 'SMK Negeri 1 Telesandi',
-                'major' => 'Rekayasa Perangkat Lunak (Software Engineering)',
-                'description' => 'Focused on software development fundamentals, web programming, database management, and object-oriented programming. Graduated with honors. Active in programming competitions and school IT extracurricular.',
-                'start_year' => 2022,
-                'end_year' => 2025,
+                'institution' => 'Politeknik Negeri Jakarta',
+                'major' => 'Teknik Informatika',
+                'description' => null,
+                'start_year' => 2026,
+                'end_year' => null,
             ],
             [
-                'institution' => 'SMP Negeri 2 Bandung',
+                'institution' => 'SMK Telekomunikasi Telesandi',
+                'major' => 'Rekayasa Perangkat Lunak',
+                'description' => 'IPK 92. Aktif sebagai Wakil Ketua Ekstrakurikuler Syntax. Meraih Juara 1 LKS IT Software Solution For Business tingkat Kabupaten dan Provinsi Jawa Barat 2025, serta Peringkat 6 dan Medallion of Excellence tingkat Nasional 2025.',
+                'start_year' => 2023,
+                'end_year' => 2026,
+            ],
+            [
+                'institution' => 'MTS Al-Khairiyah Papan Mas',
                 'major' => null,
-                'description' => 'Junior high school. First exposure to basic computer science and programming concepts through school electives.',
-                'start_year' => 2019,
-                'end_year' => 2022,
+                'description' => null,
+                'start_year' => 2020,
+                'end_year' => 2023,
             ],
         ];
 

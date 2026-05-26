@@ -29,4 +29,9 @@ class ExperienceService
     {
         $this->repository->delete($id);
     }
+
+    public function find(int $id): Experience
+    {
+        return $this->repository->find($id);
+    }
 }
