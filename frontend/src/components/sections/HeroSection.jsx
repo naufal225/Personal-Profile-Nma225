@@ -2,7 +2,7 @@ import Container from '../ui/Container'
 
 export default function HeroSection({ hero }) {
   return (
-    <section id="about" className="relative pt-20 sm:pt-24 lg:pt-28 pb-20 sm:pb-24 overflow-hidden">
+    <section id="about" className="relative min-h-screen pt-20 sm:pt-24 lg:pt-28 pb-20 sm:pb-24 overflow-hidden flex flex-col justify-center">
       {/* Decorative gradient blob */}
       <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-[640px] h-[640px] max-w-[120vw] rounded-full bg-gradient-to-br from-violet-400/25 via-indigo-400/15 to-transparent dark:from-violet-500/20 dark:via-indigo-500/10 blur-3xl" />
       {/* Subtle grid */}
@@ -17,7 +17,7 @@ export default function HeroSection({ hero }) {
             <div className="h-5 w-1/2 bg-slate-200 dark:bg-white/[0.05] rounded" />
           </div>
         ) : (
-          <div className="grid lg:grid-cols-[1.6fr_1fr] gap-10 lg:gap-16 items-center">
+          <div className="grid lg:grid-cols-[2.14fr_1fr] gap-10 lg:gap-16 items-center">
             <div className="animate-fade-in-up">
               {hero.available_for_work && (
                 <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs font-medium border border-emerald-200 dark:border-emerald-400/30 mb-6">
@@ -29,9 +29,13 @@ export default function HeroSection({ hero }) {
                 </span>
               )}
 
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight mb-6">
-                <span className="text-gradient-accent">{hero.headline}</span>
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight mb-4">
+                <span className="text-gradient-accent">Naufal Ma&apos;ruf Ashrori</span>
               </h1>
+
+              <h2 className="text-xl sm:text-2xl font-semibold text-slate-500 dark:text-zinc-400 leading-snug mb-6">
+                {hero.headline}
+              </h2>
 
               <p className="text-lg sm:text-xl text-slate-600 dark:text-zinc-400 leading-relaxed max-w-2xl mb-8">
                 {hero.subheadline}
@@ -60,8 +64,8 @@ export default function HeroSection({ hero }) {
             </div>
 
             {/* Decorative right side */}
-            <div className="hidden lg:flex justify-center animate-fade-in-up">
-              <div className="relative w-64 h-64">
+            <div className="hidden lg:flex justify-center items-center animate-fade-in-up">
+              <div className="relative w-full aspect-square max-w-xl">
                 <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-violet-400/30 via-indigo-400/20 to-transparent dark:from-violet-500/30 dark:via-indigo-500/20 blur-2xl" />
                 <div className="relative w-full h-full rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.02] backdrop-blur-sm overflow-hidden">
                   {hero.photo_path ? (

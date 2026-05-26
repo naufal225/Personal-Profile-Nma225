@@ -3,18 +3,9 @@ import SectionHeader from '../ui/SectionHeader'
 import Container from '../ui/Container'
 import Card from '../ui/Card'
 import Badge from '../ui/Badge'
+import Carousel from '../ui/Carousel'
 
 export default function ProjectsSection({ projects }) {
-  const scrollRef = useRef(null)
-
-  const scroll = (direction) => {
-    if (scrollRef.current) {
-      const { scrollLeft, clientWidth } = scrollRef.current
-      const offset = direction === 'left' ? -clientWidth * 0.8 : clientWidth * 0.8
-      scrollRef.current.scrollTo({ left: scrollLeft + offset, behavior: 'smooth' })
-    }
-  }
-
   return (
     <section id="projects" className="py-20 sm:py-24">
       <Container>
@@ -26,41 +17,20 @@ export default function ProjectsSection({ projects }) {
         />
 
         {!projects ? (
-          <div className="flex gap-6 overflow-x-auto scrollbar-hide py-4 px-2 -mx-2">
-            {Array.from({ length: 4 }).map((_, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 py-4">
+            {Array.from({ length: 2 }).map((_, i) => (
               <div
                 key={i}
-                className="h-[460px] w-[85%] md:w-[calc(50%-12px)] shrink-0 rounded-2xl border border-slate-200 dark:border-white/[0.06] bg-slate-100 dark:bg-white/[0.02] animate-pulse"
+                className="h-[460px] rounded-2xl border border-slate-200 dark:border-white/[0.06] bg-slate-100 dark:bg-white/[0.02] animate-pulse"
               />
             ))}
           </div>
         ) : (
-          <div className="relative group/section">
-            {/* Scroll buttons (Visible and clickable ONLY on hover of the section) */}
-            <button
-              onClick={() => scroll('left')}
-              className="absolute left-[-22px] top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/95 dark:bg-zinc-900/90 border border-slate-200 dark:border-white/10 hover:border-violet-400 dark:hover:border-violet-500/40 text-slate-600 dark:text-zinc-400 hover:text-violet-700 dark:hover:text-white shadow-xl hover:scale-105 flex items-center justify-center transition-all duration-300 opacity-0 pointer-events-none group-hover/section:opacity-100 group-hover/section:pointer-events-auto hidden md:flex"
-              aria-label="Scroll left"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
-            </button>
-            <button
-              onClick={() => scroll('right')}
-              className="absolute right-[-22px] top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/95 dark:bg-zinc-900/90 border border-slate-200 dark:border-white/10 hover:border-violet-400 dark:hover:border-violet-500/40 text-slate-600 dark:text-zinc-400 hover:text-violet-700 dark:hover:text-white shadow-xl hover:scale-105 flex items-center justify-center transition-all duration-300 opacity-0 pointer-events-none group-hover/section:opacity-100 group-hover/section:pointer-events-auto hidden md:flex"
-              aria-label="Scroll right"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
-            </button>
-
-            <div
-              ref={scrollRef}
-              className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-hide py-4 px-2 -mx-2"
-            >
-              {projects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
-              ))}
-            </div>
-          </div>
+          <Carousel>
+            {projects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </Carousel>
         )}
       </Container>
     </section>
@@ -88,7 +58,7 @@ function ProjectCard({ project }) {
       onMouseLeave={() => setIsHovered(false)}
       onMouseMove={handleMouseMove}
       hover={false} // Disable basic card translate to use our customized Translate-y-2
-      className="flex flex-col group w-[85%] md:w-[calc(50%-12px)] shrink-0 snap-start !p-0 overflow-hidden relative transition-all duration-300 hover:-translate-y-2 hover:border-violet-400/50 dark:hover:border-violet-500/35 hover:shadow-2xl hover:shadow-violet-500/15 dark:hover:shadow-violet-500/10 cursor-default"
+      className="flex flex-col group h-full !p-0 overflow-hidden relative transition-all duration-300 hover:-translate-y-2 hover:border-violet-400/50 dark:hover:border-violet-500/35 hover:shadow-2xl hover:shadow-violet-500/15 dark:hover:shadow-violet-500/10 cursor-default"
     >
       {/* Dynamic Cursor Glow effect */}
       <div
