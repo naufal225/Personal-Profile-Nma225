@@ -20,8 +20,19 @@ export default function LoginPage() {
     setLoading(true)
     try {
       await login(email, password)
-    } catch {
-      setError('Invalid credentials. Please try again.')
+    } catch (err) {
+      const status = err.response?.status
+      const data = err.response?.data
+      if (status === 422 && data?.errors) {
+        const first = Object.values(data.errors).flat()[0]
+        setError(first || 'Validation failed.')
+      } else if (status === 422) {
+        setError(data?.message || 'Validation failed.')
+      } else if (status === 401) {
+        setError('Email or password is incorrect.')
+      } else {
+        setError(`Error ${status ?? 'unknown'}: ${data?.message ?? 'Something went wrong.'}`)
+      }
     } finally {
       setLoading(false)
     }
