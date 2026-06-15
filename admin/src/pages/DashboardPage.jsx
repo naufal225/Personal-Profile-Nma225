@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, ArrowRight } from 'lucide-react'
+import { Plus, ArrowRight, Folder } from 'lucide-react'
 import { toast } from 'sonner'
 import { adminRoutes } from '../routes/adminRoutes'
-import { Button } from '../components/ui/Button'
-import { Skeleton } from '../components/ui/Skeleton'
 
 import { adminGetProjects } from '../api/projects'
 import { adminGetSkills } from '../api/skills'
@@ -42,7 +40,7 @@ export default function DashboardPage() {
             const data = res.value?.data?.data ?? []
             next[paths[idx]] = Array.isArray(data) ? data.length : 0
             if (paths[idx] === '/projects') {
-              setRecentProjects(Array.isArray(data) ? data.slice(0, 3) : [])
+              setRecentProjects(Array.isArray(data) ? data.slice(0, 4) : [])
             }
           } else {
             next[paths[idx]] = null
@@ -50,116 +48,84 @@ export default function DashboardPage() {
         })
         setCounts(next)
       })
-      .catch(() => toast.error('Failed to load dashboard stats'))
+      .catch(() => toast.error('Gagal memuat statistik'))
       .finally(() => setLoading(false))
   }, [])
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Manage your portfolio content from one place.
-        </p>
+    <>
+      <div className="page-head">
+        <div>
+          <h1 className="page-title">Dashboard</h1>
+          <p className="page-sub">Kelola seluruh konten portfolio Anda dari satu tempat.</p>
+        </div>
+        <div className="page-actions">
+          <Link to="/projects/create" className="btn btn-primary"><Plus /> Proyek Baru</Link>
+        </div>
       </div>
 
-      <section>
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Quick create
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {QUICK_CREATE.map((label) => {
-            const route = adminRoutes.find((r) => r.label === label)
-            if (!route) return null
-            return (
-              <Button key={label} asChild variant="outline" size="sm">
-                <Link to={`${route.path}/create`}>
-                  <Plus className="h-3.5 w-3.5" /> {label}
-                </Link>
-              </Button>
-            )
-          })}
-        </div>
-      </section>
-
-      <section>
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          All modules
-        </h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {grouped.map((r) => {
-            const Icon = r.icon
-            const count = counts[r.path]
-            return (
-              <Link
-                key={r.path}
-                to={r.path}
-                className="group flex flex-col rounded-xl border border-border bg-card p-4 transition-colors hover:bg-accent/40 hover:border-accent"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="grid h-10 w-10 place-items-center rounded-lg bg-muted text-muted-foreground group-hover:bg-background">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-sm font-medium text-foreground">{r.label}</div>
-                    <div className="text-xs text-muted-foreground">{r.group}</div>
-                  </div>
-                </div>
-                <div className="mt-4 flex items-baseline justify-between">
-                  {loading ? (
-                    <Skeleton className="h-7 w-10" />
-                  ) : (
-                    <span className="text-2xl font-semibold tracking-tight text-foreground">
-                      {r.path === '/hero' ? '—' : (count ?? 0)}
-                    </span>
-                  )}
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                    {r.path === '/hero' ? 'single record' : 'total'}
-                  </span>
-                </div>
-              </Link>
-            )
-          })}
-        </div>
-      </section>
-
-      {recentProjects.length > 0 && (
-        <section>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Recent projects
-            </h2>
-            <Link to="/projects" className="text-xs text-primary hover:underline inline-flex items-center gap-1">
-              View all <ArrowRight className="h-3 w-3" />
+      <div className="stat-grid">
+        {grouped.map((r) => {
+          const Icon = r.icon
+          const count = counts[r.path]
+          return (
+            <Link key={r.path} to={r.path} className="stat-card card">
+              <div className="stat-top">
+                <span className="stat-ic"><Icon /></span>
+              </div>
+              <div className="stat-k">{loading ? '…' : (count ?? 0)}</div>
+              <div className="stat-l">{r.label}</div>
             </Link>
+          )
+        })}
+      </div>
+
+      <div className="dash-cols">
+        <div className="card">
+          <div className="section-card-head">
+            <h3>Proyek terbaru</h3>
+            <Link to="/projects">Lihat semua</Link>
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {recentProjects.map((p) => (
-              <Link
-                key={p.id}
-                to={`/projects/${p.id}`}
-                className="group flex gap-3 rounded-xl border border-border bg-card p-3 transition-colors hover:bg-accent/40 hover:border-accent"
-              >
-                {p.thumbnail_path ? (
-                  <img
-                    src={p.thumbnail_path}
-                    alt={p.title}
-                    className="h-14 w-14 rounded-lg object-cover bg-muted shrink-0"
-                  />
-                ) : (
-                  <div className="h-14 w-14 rounded-lg bg-muted shrink-0" />
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium truncate text-foreground">{p.title}</p>
+          {recentProjects.length === 0 ? (
+            <div className="empty" style={{ padding: '40px 24px' }}>
+              <p>Belum ada proyek.</p>
+            </div>
+          ) : (
+            recentProjects.map((p) => (
+              <Link key={p.id} to={`/projects/${p.id}/edit`} className="activity">
+                <span className="activity-ic">
+                  {p.thumbnail_path ? <img src={p.thumbnail_path} alt={p.title} /> : <Folder />}
+                </span>
+                <div style={{ minWidth: 0 }}>
+                  <div className="t" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</div>
                   {p.description && (
-                    <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{p.description}</p>
+                    <div className="m" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 420 }}>{p.description}</div>
                   )}
                 </div>
               </Link>
-            ))}
+            ))
+          )}
+        </div>
+
+        <div className="card">
+          <div className="section-card-head">
+            <h3>Aksi cepat</h3>
           </div>
-        </section>
-      )}
-    </div>
+          <div className="quick-links">
+            {QUICK_CREATE.map((label) => {
+              const route = adminRoutes.find((r) => r.label === label)
+              if (!route) return null
+              return (
+                <Link key={label} to={`${route.path}/create`} className="quick-link">
+                  <Plus />
+                  <span className="t">Tambah {label}</span>
+                  <ArrowRight className="arrow" size={16} />
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </>
   )
 }

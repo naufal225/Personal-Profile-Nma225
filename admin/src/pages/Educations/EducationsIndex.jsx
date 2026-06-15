@@ -1,20 +1,15 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Plus, MoreHorizontal, Eye, Pencil, Trash2 } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { adminGetEducations, adminDeleteEducation } from '../../api/educations'
-import { Button } from '../../components/ui/Button'
 import PageHeader from '../../components/ui/PageHeader'
 import DataTable from '../../components/ui/DataTable'
+import RowActions from '../../components/ui/RowActions'
 import ConfirmDialog from '../../components/ui/ConfirmDialog'
 import { formatYear } from '../../utils/formatDate'
-import {
-  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent,
-  DropdownMenuItem, DropdownMenuSeparator,
-} from '../../components/ui/DropdownMenu'
 
 export default function EducationsIndex() {
-  const navigate = useNavigate()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [deleteId, setDeleteId] = useState(null)
@@ -24,21 +19,20 @@ export default function EducationsIndex() {
     setLoading(true)
     adminGetEducations()
       .then((r) => setItems(r.data.data ?? []))
-      .catch(() => toast.error('Failed to load educations'))
+      .catch(() => toast.error('Gagal memuat pendidikan'))
       .finally(() => setLoading(false))
   }
-
   useEffect(() => { load() }, [])
 
   const handleDelete = async () => {
     setDeleting(true)
     try {
       await adminDeleteEducation(deleteId)
-      toast.success('Education deleted')
+      toast.success('Pendidikan dihapus')
       setDeleteId(null)
       load()
     } catch {
-      toast.error('Failed to delete')
+      toast.error('Gagal menghapus')
     } finally {
       setDeleting(false)
     }
@@ -46,50 +40,21 @@ export default function EducationsIndex() {
 
   const columns = [
     {
-      key: 'institution', header: 'Institution',
+      key: 'institution', header: 'Institusi',
       render: (row) => (
-        <div className="min-w-0">
-          <p className="font-medium truncate max-w-[280px]">{row.institution}</p>
-          {row.major && (
-            <p className="text-xs text-muted-foreground truncate max-w-[280px] mt-0.5">{row.major}</p>
-          )}
+        <div style={{ minWidth: 0 }}>
+          <div className="cell-title" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 320 }}>{row.institution}</div>
+          {row.major && <div className="cell-sub" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 320 }}>{row.major}</div>}
         </div>
       ),
     },
     {
-      key: 'period', header: 'Period',
-      render: (row) => (
-        <span className="text-sm text-muted-foreground">
-          {formatYear(row.start_year)} — {formatYear(row.end_year)}
-        </span>
-      ),
+      key: 'period', header: 'Periode', width: 200,
+      render: (row) => <span style={{ color: 'var(--muted)', fontSize: 13 }}>{formatYear(row.start_year)} — {formatYear(row.end_year)}</span>,
     },
     {
-      key: 'actions', header: '', width: '48px', className: 'text-right',
-      render: (row) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigate(`/educations/${row.id}`)}>
-              <Eye className="h-4 w-4" /> View
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate(`/educations/${row.id}/edit`)}>
-              <Pencil className="h-4 w-4" /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-destructive focus:text-destructive focus:bg-destructive/10"
-              onClick={() => setDeleteId(row.id)}
-            >
-              <Trash2 className="h-4 w-4" /> Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
+      key: 'actions', header: '', width: 96,
+      render: (row) => <RowActions editTo={`/educations/${row.id}/edit`} onDelete={() => setDeleteId(row.id)} />,
     },
   ]
 
@@ -97,31 +62,24 @@ export default function EducationsIndex() {
     <>
       <PageHeader
         title="Educations"
-        description="Schools and degrees."
-        action={
-          <Button asChild>
-            <Link to="/educations/create">
-              <Plus className="h-4 w-4" /> Add Education
-            </Link>
-          </Button>
-        }
+        description="Riwayat sekolah dan gelar."
+        action={<Link to="/educations/create" className="btn btn-primary"><Plus /> Tambah Pendidikan</Link>}
       />
       <DataTable
         columns={columns}
         data={items}
         loading={loading}
-        emptyMessage="No educations yet."
-        emptyAction={
-          <Button asChild size="sm" variant="outline">
-            <Link to="/educations/create"><Plus className="h-3.5 w-3.5" /> Add your first education</Link>
-          </Button>
-        }
+        itemLabel="pendidikan"
+        searchKeys={['institution', 'major']}
+        searchPlaceholder="Cari pendidikan…"
+        emptyMessage="Belum ada pendidikan."
+        emptyAction={<Link to="/educations/create" className="btn btn-ghost btn-sm"><Plus size={15} /> Tambah pendidikan pertama</Link>}
       />
       <ConfirmDialog
         open={!!deleteId}
         onOpenChange={(v) => !v && setDeleteId(null)}
-        title="Delete education?"
-        description="This will permanently remove the education."
+        title="Hapus pendidikan?"
+        description="Data ini akan dihapus secara permanen."
         onConfirm={handleDelete}
         loading={deleting}
       />

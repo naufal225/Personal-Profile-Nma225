@@ -1,26 +1,26 @@
-import { useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useForm, useController } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
+import { Briefcase, Tags } from 'lucide-react'
 import { adminCreateExperience } from '../../api/experiences'
-import { Button } from '../../components/ui/Button'
+import { FormShell, FormCard, FormSection } from '../../components/ui/Form'
 import FormField, { inputCls } from '../../components/ui/FormField'
 import SkillsSelector from '../../components/ui/SkillsSelector'
 
 const schema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  organization: z.string().min(1, 'Organization is required'),
+  title: z.string().min(1, 'Posisi wajib diisi'),
+  organization: z.string().min(1, 'Organisasi wajib diisi'),
   description: z.string().optional().default(''),
-  skills: z.array(z.string()).min(1, 'At least one skill is required'),
-  start_date: z.string().min(1, 'Start date is required'),
+  skills: z.array(z.string()).min(1, 'Minimal satu skill'),
+  start_date: z.string().min(1, 'Tanggal mulai wajib diisi'),
   end_date: z.string().optional().default(''),
 })
 
 export default function ExperienceCreate() {
   const navigate = useNavigate()
-  const { register, handleSubmit, control, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, control, formState: { errors, isSubmitting, isDirty } } = useForm({
     resolver: zodResolver(schema),
     defaultValues: { title: '', organization: '', description: '', skills: [], start_date: '', end_date: '' },
   })
@@ -28,67 +28,56 @@ export default function ExperienceCreate() {
 
   const onSubmit = async (data) => {
     try {
-      const payload = {
+      const res = await adminCreateExperience({
         title: data.title,
         organization: data.organization,
         description: data.description || null,
         skills: data.skills,
         start_date: data.start_date,
         end_date: data.end_date || null,
-      }
-      const res = await adminCreateExperience(payload)
-      toast.success('Experience created')
+      })
+      toast.success('Pengalaman dibuat')
       navigate(`/experiences/${res.data.data.id}`)
     } catch (e) {
-      toast.error(e.response?.data?.message || 'Failed to create experience')
+      toast.error(e.response?.data?.message || 'Gagal membuat pengalaman')
     }
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-6">
-        <Button asChild variant="ghost" size="sm" className="-ml-2">
-          <Link to="/experiences"><ArrowLeft className="h-4 w-4" /> Back to experiences</Link>
-        </Button>
-        <h1 className="text-2xl font-semibold tracking-tight mt-2">New Experience</h1>
-      </div>
+    <FormShell
+      title="Pengalaman Baru"
+      subtitle="Tambahkan riwayat pekerjaan atau posisi."
+      backTo="/experiences"
+      cancelTo="/experiences"
+      onSubmit={handleSubmit(onSubmit)}
+      submitting={isSubmitting}
+      submitLabel="Buat Pengalaman"
+      dirty={isDirty}
+    >
+      <FormCard>
+        <FormSection icon={Briefcase} title="Detail Pengalaman">
+          <FormField className="full" label="Posisi / Jabatan" error={errors.title?.message} required>
+            <input {...register('title')} className={inputCls} placeholder="Programmer" />
+          </FormField>
+          <FormField className="full" label="Organisasi" error={errors.organization?.message} required>
+            <input {...register('organization')} className={inputCls} placeholder="PT Yaztech Engineering Solusindo" />
+          </FormField>
+          <FormField className="full" label="Deskripsi" error={errors.description?.message} description="Tugas, pencapaian, dampak.">
+            <textarea {...register('description')} rows={4} className="textarea" />
+          </FormField>
+          <FormField label="Tanggal Mulai" error={errors.start_date?.message} required>
+            <input {...register('start_date')} type="date" className={inputCls} />
+          </FormField>
+          <FormField label="Tanggal Selesai" error={errors.end_date?.message} description="Kosong = sekarang.">
+            <input {...register('end_date')} type="date" className={inputCls} />
+          </FormField>
+        </FormSection>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div className="rounded-xl border border-border bg-card p-6 space-y-5">
-          <FormField label="Title / Position" error={errors.title?.message} required>
-            <input {...register('title')} className={errors.title ? inputCls + ' border-destructive' : inputCls} placeholder="Senior Fullstack Engineer" />
-          </FormField>
-          <FormField label="Organization" error={errors.organization?.message} required>
-            <input {...register('organization')} className={errors.organization ? inputCls + ' border-destructive' : inputCls} placeholder="Acme Inc." />
-          </FormField>
-          <FormField label="Description" error={errors.description?.message} description="What you did, achievements, impact.">
-            <textarea {...register('description')} rows={4} className={inputCls} />
-          </FormField>
-          <div className="grid grid-cols-2 gap-4">
-            <FormField label="Start Date" error={errors.start_date?.message} required>
-              <input {...register('start_date')} type="date" className={errors.start_date ? inputCls + ' border-destructive' : inputCls} />
-            </FormField>
-            <FormField label="End Date" error={errors.end_date?.message} description="Empty = Present.">
-              <input {...register('end_date')} type="date" className={inputCls} />
-            </FormField>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-border bg-card p-6">
-          <p className="text-sm font-medium text-foreground mb-1">Skills Used</p>
-          {errors.skills && <p className="text-xs text-destructive mb-2">{errors.skills.message}</p>}
+        <FormSection icon={Tags} title="Skill yang Digunakan" plain>
+          {errors.skills && <p className="hint" style={{ color: 'var(--danger)', marginBottom: 10 }}>{errors.skills.message}</p>}
           <SkillsSelector value={skillsField.value} onChange={skillsField.onChange} />
-        </div>
-
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <Button asChild variant="ghost">
-            <Link to="/experiences">Cancel</Link>
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving…' : 'Create Experience'}
-          </Button>
-        </div>
-      </form>
-    </div>
+        </FormSection>
+      </FormCard>
+    </FormShell>
   )
 }

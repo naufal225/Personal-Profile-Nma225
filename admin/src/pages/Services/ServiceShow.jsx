@@ -1,102 +1,67 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
-import { Pencil, Trash2, ArrowLeft } from 'lucide-react'
+import { useParams } from 'react-router-dom'
+import { Wrench, Layers, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { adminGetService, adminDeleteService } from '../../api/services'
-import { Button } from '../../components/ui/Button'
-import ConfirmDialog from '../../components/ui/ConfirmDialog'
-import { Skeleton } from '../../components/ui/Skeleton'
+import { FormCard, FormSection } from '../../components/ui/Form'
+import { DetailShell, MetaRow, DetailBlock, DetailLoading, DetailNotFound } from '../../components/ui/Detail'
 
 export default function ServiceShow() {
   const { id } = useParams()
-  const navigate = useNavigate()
   const [item, setItem] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [deleteOpen, setDeleteOpen] = useState(false)
-  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     adminGetService(id)
       .then((r) => setItem(r.data.data))
-      .catch(() => toast.error('Failed to load service'))
+      .catch(() => toast.error('Gagal memuat layanan'))
       .finally(() => setLoading(false))
   }, [id])
 
-  const handleDelete = async () => {
-    setDeleting(true)
-    try {
-      await adminDeleteService(id)
-      toast.success('Service deleted')
-      navigate('/services')
-    } catch {
-      toast.error('Failed to delete')
-    } finally {
-      setDeleting(false)
-    }
-  }
+  if (loading) return <DetailLoading />
+  if (!item) return <DetailNotFound message="Layanan tidak ditemukan." backTo="/services" />
 
-  if (loading) {
-    return (
-      <div className="max-w-3xl mx-auto space-y-6">
-        <Skeleton className="h-7 w-32" />
-        <Skeleton className="h-56 w-full rounded-xl" />
-      </div>
-    )
-  }
-
-  if (!item) {
-    return (
-      <div className="max-w-3xl mx-auto text-center py-16">
-        <p className="text-muted-foreground">Service not found.</p>
-        <Button asChild variant="ghost" className="mt-4">
-          <Link to="/services"><ArrowLeft className="h-4 w-4" /> Back to services</Link>
-        </Button>
-      </div>
-    )
-  }
+  const tiers = Array.isArray(item.metadata?.tiers) ? item.metadata.tiers : []
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <Button asChild variant="ghost" size="sm" className="-ml-2">
-          <Link to="/services"><ArrowLeft className="h-4 w-4" /> Services</Link>
-        </Button>
-        <div className="flex items-center gap-2">
-          <Button asChild variant="outline" size="sm">
-            <Link to={`/services/${id}/edit`}><Pencil className="h-4 w-4" /> Edit</Link>
-          </Button>
-          <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
-            <Trash2 className="h-4 w-4" /> Delete
-          </Button>
-        </div>
-      </div>
+    <DetailShell
+      title={item.title}
+      backTo="/services"
+      editTo={`/services/${id}/edit`}
+      deleteFn={() => adminDeleteService(id)}
+      redirectTo="/services"
+      deleteTitle="Hapus layanan?"
+      deleteDescription={`"${item.title}" akan dihapus secara permanen.`}
+    >
+      <FormCard>
+        <FormSection icon={Wrench} title="Detail Layanan" plain>
+          {item.description && <DetailBlock label="Deskripsi">{item.description}</DetailBlock>}
+          <div style={{ marginTop: 18 }}>
+            <MetaRow k="Icon / Slug" v={<span className="tag-mono">{item.icon || '—'}</span>} />
+            <MetaRow k="Urutan" v={item.order ?? 0} />
+          </div>
+        </FormSection>
 
-      <div className="rounded-xl border border-border bg-card p-6">
-        <div className="flex items-start gap-4">
-          <div className="h-14 w-14 rounded-xl bg-muted flex items-center justify-center text-2xl shrink-0">
-            <span>{item.icon || '–'}</span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-semibold text-foreground">{item.title}</h1>
-            <span className="mt-1 inline-block text-xs text-muted-foreground">Order: {item.order ?? 0}</span>
-          </div>
-        </div>
-        {item.description && (
-          <div className="mt-5 pt-5 border-t border-border">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Description</p>
-            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{item.description}</p>
-          </div>
+        {tiers.length > 0 && (
+          <FormSection icon={Layers} title="Paket Harga" plain>
+            {tiers.map((tier, i) => (
+              <div key={i} className={`tier-view${tier.recommended ? ' rec' : ''}`}>
+                <div className="tier-view-head">
+                  <span className="tn">{tier.name}</span>
+                  <span className="tp">{tier.price}</span>
+                </div>
+                {tier.recommended && <span className="badge featured">Rekomendasi</span>}
+                {tier.note && <p className="tnote">{tier.note}</p>}
+                {Array.isArray(tier.features) && tier.features.length > 0 && (
+                  <ul className="tier-feats-view">
+                    {tier.features.map((f, idx) => <li key={idx}><Check size={14} /> {f}</li>)}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </FormSection>
         )}
-      </div>
-
-      <ConfirmDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        title="Delete service?"
-        description={`"${item.title}" will be permanently removed.`}
-        onConfirm={handleDelete}
-        loading={deleting}
-      />
-    </div>
+      </FormCard>
+    </DetailShell>
   )
 }

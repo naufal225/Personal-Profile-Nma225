@@ -1,22 +1,21 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useForm, useController } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
+import { Briefcase, Tags } from 'lucide-react'
 import { adminGetExperience, adminUpdateExperience } from '../../api/experiences'
-import { Button } from '../../components/ui/Button'
+import { FormShell, FormCard, FormSection } from '../../components/ui/Form'
 import FormField, { inputCls } from '../../components/ui/FormField'
 import SkillsSelector from '../../components/ui/SkillsSelector'
-import { Skeleton } from '../../components/ui/Skeleton'
 
 const schema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  organization: z.string().min(1, 'Organization is required'),
+  title: z.string().min(1, 'Posisi wajib diisi'),
+  organization: z.string().min(1, 'Organisasi wajib diisi'),
   description: z.string().optional().default(''),
-  skills: z.array(z.string()).min(1, 'At least one skill is required'),
-  start_date: z.string().min(1, 'Start date is required'),
+  skills: z.array(z.string()).min(1, 'Minimal satu skill'),
+  start_date: z.string().min(1, 'Tanggal mulai wajib diisi'),
   end_date: z.string().optional().default(''),
 })
 
@@ -30,7 +29,7 @@ export default function ExperienceEdit() {
   const navigate = useNavigate()
   const [fetching, setFetching] = useState(true)
 
-  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting, isDirty } } = useForm({
     resolver: zodResolver(schema),
   })
   const { field: skillsField } = useController({ name: 'skills', control, defaultValue: [] })
@@ -48,82 +47,65 @@ export default function ExperienceEdit() {
           end_date: toDateInput(d.end_date),
         })
       })
-      .catch(() => toast.error('Failed to load experience'))
+      .catch(() => toast.error('Gagal memuat pengalaman'))
       .finally(() => setFetching(false))
   }, [id, reset])
 
   const onSubmit = async (data) => {
     try {
-      const payload = {
+      await adminUpdateExperience(id, {
         title: data.title,
         organization: data.organization,
         description: data.description || null,
         skills: data.skills,
         start_date: data.start_date,
         end_date: data.end_date || null,
-      }
-      await adminUpdateExperience(id, payload)
-      toast.success('Experience updated')
+      })
+      toast.success('Pengalaman diperbarui')
       navigate(`/experiences/${id}`)
     } catch (e) {
-      toast.error(e.response?.data?.message || 'Failed to update')
+      toast.error(e.response?.data?.message || 'Gagal memperbarui')
     }
   }
 
   if (fetching) {
-    return (
-      <div className="max-w-2xl mx-auto space-y-4">
-        <Skeleton className="h-7 w-40" />
-        <Skeleton className="h-96 w-full rounded-xl" />
-      </div>
-    )
+    return <div className="card" style={{ height: 360 }}><div className="skeleton" style={{ height: '100%' }} /></div>
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-6">
-        <Button asChild variant="ghost" size="sm" className="-ml-2">
-          <Link to={`/experiences/${id}`}><ArrowLeft className="h-4 w-4" /> Back</Link>
-        </Button>
-        <h1 className="text-2xl font-semibold tracking-tight mt-2">Edit Experience</h1>
-      </div>
+    <FormShell
+      title="Edit Pengalaman"
+      backTo={`/experiences/${id}`}
+      cancelTo={`/experiences/${id}`}
+      onSubmit={handleSubmit(onSubmit)}
+      submitting={isSubmitting}
+      submitLabel="Simpan Perubahan"
+      dirty={isDirty}
+    >
+      <FormCard>
+        <FormSection icon={Briefcase} title="Detail Pengalaman">
+          <FormField className="full" label="Posisi / Jabatan" error={errors.title?.message} required>
+            <input {...register('title')} className={inputCls} />
+          </FormField>
+          <FormField className="full" label="Organisasi" error={errors.organization?.message} required>
+            <input {...register('organization')} className={inputCls} />
+          </FormField>
+          <FormField className="full" label="Deskripsi" error={errors.description?.message}>
+            <textarea {...register('description')} rows={4} className="textarea" />
+          </FormField>
+          <FormField label="Tanggal Mulai" error={errors.start_date?.message} required>
+            <input {...register('start_date')} type="date" className={inputCls} />
+          </FormField>
+          <FormField label="Tanggal Selesai" error={errors.end_date?.message} description="Kosong = sekarang.">
+            <input {...register('end_date')} type="date" className={inputCls} />
+          </FormField>
+        </FormSection>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div className="rounded-xl border border-border bg-card p-6 space-y-5">
-          <FormField label="Title / Position" error={errors.title?.message} required>
-            <input {...register('title')} className={errors.title ? inputCls + ' border-destructive' : inputCls} />
-          </FormField>
-          <FormField label="Organization" error={errors.organization?.message} required>
-            <input {...register('organization')} className={errors.organization ? inputCls + ' border-destructive' : inputCls} />
-          </FormField>
-          <FormField label="Description" error={errors.description?.message}>
-            <textarea {...register('description')} rows={4} className={inputCls} />
-          </FormField>
-          <div className="grid grid-cols-2 gap-4">
-            <FormField label="Start Date" error={errors.start_date?.message} required>
-              <input {...register('start_date')} type="date" className={errors.start_date ? inputCls + ' border-destructive' : inputCls} />
-            </FormField>
-            <FormField label="End Date" error={errors.end_date?.message} description="Empty = Present.">
-              <input {...register('end_date')} type="date" className={inputCls} />
-            </FormField>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-border bg-card p-6">
-          <p className="text-sm font-medium text-foreground mb-1">Skills Used</p>
-          {errors.skills && <p className="text-xs text-destructive mb-2">{errors.skills.message}</p>}
+        <FormSection icon={Tags} title="Skill yang Digunakan" plain>
+          {errors.skills && <p className="hint" style={{ color: 'var(--danger)', marginBottom: 10 }}>{errors.skills.message}</p>}
           <SkillsSelector value={skillsField.value} onChange={skillsField.onChange} />
-        </div>
-
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <Button asChild variant="ghost">
-            <Link to={`/experiences/${id}`}>Cancel</Link>
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving…' : 'Save Changes'}
-          </Button>
-        </div>
-      </form>
-    </div>
+        </FormSection>
+      </FormCard>
+    </FormShell>
   )
 }

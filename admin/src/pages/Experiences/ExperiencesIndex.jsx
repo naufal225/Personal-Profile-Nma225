@@ -1,20 +1,15 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Plus, MoreHorizontal, Eye, Pencil, Trash2 } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { adminGetExperiences, adminDeleteExperience } from '../../api/experiences'
-import { Button } from '../../components/ui/Button'
 import PageHeader from '../../components/ui/PageHeader'
 import DataTable from '../../components/ui/DataTable'
+import RowActions from '../../components/ui/RowActions'
 import ConfirmDialog from '../../components/ui/ConfirmDialog'
 import { formatDate } from '../../utils/formatDate'
-import {
-  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent,
-  DropdownMenuItem, DropdownMenuSeparator,
-} from '../../components/ui/DropdownMenu'
 
 export default function ExperiencesIndex() {
-  const navigate = useNavigate()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [deleteId, setDeleteId] = useState(null)
@@ -24,21 +19,20 @@ export default function ExperiencesIndex() {
     setLoading(true)
     adminGetExperiences()
       .then((r) => setItems(r.data.data ?? []))
-      .catch(() => toast.error('Failed to load experiences'))
+      .catch(() => toast.error('Gagal memuat pengalaman'))
       .finally(() => setLoading(false))
   }
-
   useEffect(() => { load() }, [])
 
   const handleDelete = async () => {
     setDeleting(true)
     try {
       await adminDeleteExperience(deleteId)
-      toast.success('Experience deleted')
+      toast.success('Pengalaman dihapus')
       setDeleteId(null)
       load()
     } catch {
-      toast.error('Failed to delete')
+      toast.error('Gagal menghapus')
     } finally {
       setDeleting(false)
     }
@@ -46,68 +40,33 @@ export default function ExperiencesIndex() {
 
   const columns = [
     {
-      key: 'title', header: 'Position',
+      key: 'title', header: 'Posisi',
       render: (row) => (
-        <div className="min-w-0">
-          <p className="font-medium truncate max-w-[260px]">{row.title}</p>
-          <p className="text-xs text-muted-foreground truncate max-w-[260px] mt-0.5">{row.organization}</p>
+        <div style={{ minWidth: 0 }}>
+          <div className="cell-title" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 260 }}>{row.title}</div>
+          <div className="cell-sub" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 260 }}>{row.organization}</div>
         </div>
       ),
     },
     {
-      key: 'period', header: 'Period',
-      render: (row) => (
-        <span className="text-sm text-muted-foreground">
-          {formatDate(row.start_date)} — {formatDate(row.end_date)}
-        </span>
-      ),
+      key: 'period', header: 'Periode', width: 200,
+      render: (row) => <span style={{ color: 'var(--muted)', fontSize: 13 }}>{formatDate(row.start_date)} — {formatDate(row.end_date)}</span>,
     },
     {
       key: 'skills', header: 'Skills',
       render: (row) => {
         const skills = Array.isArray(row.skills) ? row.skills : []
-        const shown = skills.slice(0, 3)
-        const rest = skills.length - 3
         return (
-          <div className="flex flex-wrap gap-1">
-            {shown.map((t) => (
-              <span key={t} className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted text-xs font-medium text-muted-foreground">
-                {t}
-              </span>
-            ))}
-            {rest > 0 && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted text-xs text-muted-foreground">+{rest}</span>
-            )}
+          <div className="tags-cell">
+            {skills.slice(0, 3).map((t) => <span key={t} className="tag-mono">{t}</span>)}
+            {skills.length > 3 && <span className="tag-mono">+{skills.length - 3}</span>}
           </div>
         )
       },
     },
     {
-      key: 'actions', header: '', width: '48px', className: 'text-right',
-      render: (row) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigate(`/experiences/${row.id}`)}>
-              <Eye className="h-4 w-4" /> View
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate(`/experiences/${row.id}/edit`)}>
-              <Pencil className="h-4 w-4" /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-destructive focus:text-destructive focus:bg-destructive/10"
-              onClick={() => setDeleteId(row.id)}
-            >
-              <Trash2 className="h-4 w-4" /> Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
+      key: 'actions', header: '', width: 96,
+      render: (row) => <RowActions editTo={`/experiences/${row.id}/edit`} onDelete={() => setDeleteId(row.id)} />,
     },
   ]
 
@@ -115,31 +74,24 @@ export default function ExperiencesIndex() {
     <>
       <PageHeader
         title="Experiences"
-        description="Your work history and positions."
-        action={
-          <Button asChild>
-            <Link to="/experiences/create">
-              <Plus className="h-4 w-4" /> Add Experience
-            </Link>
-          </Button>
-        }
+        description="Riwayat pekerjaan dan posisi Anda."
+        action={<Link to="/experiences/create" className="btn btn-primary"><Plus /> Tambah Pengalaman</Link>}
       />
       <DataTable
         columns={columns}
         data={items}
         loading={loading}
-        emptyMessage="No experiences yet."
-        emptyAction={
-          <Button asChild size="sm" variant="outline">
-            <Link to="/experiences/create"><Plus className="h-3.5 w-3.5" /> Add your first experience</Link>
-          </Button>
-        }
+        itemLabel="pengalaman"
+        searchKeys={['title', 'organization', 'skills']}
+        searchPlaceholder="Cari pengalaman…"
+        emptyMessage="Belum ada pengalaman."
+        emptyAction={<Link to="/experiences/create" className="btn btn-ghost btn-sm"><Plus size={15} /> Tambah pengalaman pertama</Link>}
       />
       <ConfirmDialog
         open={!!deleteId}
         onOpenChange={(v) => !v && setDeleteId(null)}
-        title="Delete experience?"
-        description="This will permanently remove the experience."
+        title="Hapus pengalaman?"
+        description="Data ini akan dihapus secara permanen."
         onConfirm={handleDelete}
         loading={deleting}
       />

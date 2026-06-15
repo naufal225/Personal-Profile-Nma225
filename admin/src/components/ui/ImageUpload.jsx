@@ -1,141 +1,77 @@
 import { useState, useRef } from 'react'
-import { Upload, Link, X, Image as ImageIcon } from 'lucide-react'
-import { cn } from '../../lib/utils'
+import { UploadCloud, Link2, X } from 'lucide-react'
 
 const MAX_BYTES = 4 * 1024 * 1024 // 4 MB
 
 export default function ImageUpload({ value, onChange }) {
-  const [tab, setTab] = useState('file')
-  const [urlInput, setUrlInput] = useState(typeof value === 'string' ? value : '')
-  const [dragOver, setDragOver] = useState(false)
-  const [sizeError, setSizeError] = useState('')
+  const initialTab = value?.mode === 'url' || typeof value === 'string' ? 'url' : 'file'
+  const [tab, setTab] = useState(initialTab)
+  const [urlInput, setUrlInput] = useState(value?.mode === 'url' ? value.url : (typeof value === 'string' ? value : ''))
+  const [drag, setDrag] = useState(false)
+  const [err, setErr] = useState('')
   const fileRef = useRef(null)
 
   const preview =
-    tab === 'url' ? (urlInput || null)
-    : (value?.mode === 'file' && value.file ? URL.createObjectURL(value.file) : null)
-      ?? (typeof value === 'string' ? value : null)
+    value?.mode === 'file' && value.file ? URL.createObjectURL(value.file)
+    : value?.mode === 'url' ? value.url
+    : (typeof value === 'string' ? value : null)
 
   const handleFile = (file) => {
     if (!file) return
-    if (file.size > MAX_BYTES) {
-      setSizeError(`File too large (max 4 MB). Your file: ${(file.size / 1024 / 1024).toFixed(1)} MB`)
-      return
-    }
-    setSizeError('')
+    if (file.size > MAX_BYTES) { setErr(`Terlalu besar (maks 4 MB). File Anda: ${(file.size / 1048576).toFixed(1)} MB`); return }
+    setErr('')
     onChange({ mode: 'file', file })
   }
 
-  const handleDrop = (e) => {
-    e.preventDefault()
-    setDragOver(false)
-    const file = e.dataTransfer.files?.[0]
-    if (file && file.type.startsWith('image/')) handleFile(file)
-  }
-
-  const handleUrlBlur = () => {
-    if (urlInput) onChange({ mode: 'url', url: urlInput })
-    else onChange(null)
-  }
-
-  const handleClear = () => {
+  const clear = () => {
     onChange(null)
     setUrlInput('')
-    setSizeError('')
+    setErr('')
     if (fileRef.current) fileRef.current.value = ''
   }
 
-  const TabBtn = ({ id, icon: Icon, label }) => (
-    <button
-      type="button"
-      onClick={() => setTab(id)}
-      className={cn(
-        'flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors',
-        tab === id
-          ? 'bg-background shadow-sm text-foreground border border-border'
-          : 'text-muted-foreground hover:text-foreground'
-      )}
-    >
-      <Icon className="h-3.5 w-3.5" /> {label}
-    </button>
-  )
-
   return (
-    <div className="space-y-3">
-      <div className="flex gap-1 p-1 bg-muted rounded-lg w-fit">
-        <TabBtn id="file" icon={Upload} label="Upload" />
-        <TabBtn id="url" icon={Link} label="URL" />
+    <div>
+      <div className="upload-tabs">
+        <button type="button" className={tab === 'file' ? 'active' : ''} onClick={() => setTab('file')}><UploadCloud size={14} /> Upload</button>
+        <button type="button" className={tab === 'url' ? 'active' : ''} onClick={() => setTab('url')}><Link2 size={14} /> URL</button>
       </div>
 
-      {tab === 'file' && (
-        <div
-          className={cn(
-            'relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-6 text-center transition-colors cursor-pointer',
-            dragOver ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50 hover:bg-muted/50'
-          )}
-          onClick={() => fileRef.current?.click()}
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={handleDrop}
-        >
+      {tab === 'file' ? (
+        preview ? (
+          <div className="upload-preview">
+            <img src={preview} alt="Pratinjau" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+            <button type="button" className="upload-x" onClick={clear} aria-label="Hapus"><X size={15} /></button>
+          </div>
+        ) : (
+          <div
+            className={`upload${drag ? ' drag' : ''}`}
+            onClick={() => fileRef.current?.click()}
+            onDragOver={(e) => { e.preventDefault(); setDrag(true) }}
+            onDragLeave={() => setDrag(false)}
+            onDrop={(e) => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files?.[0]; if (f && f.type.startsWith('image/')) handleFile(f) }}
+          >
+            <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,image/jpg" style={{ display: 'none' }} onChange={(e) => handleFile(e.target.files?.[0])} />
+            <UploadCloud />
+            <div className="u-t">Jatuhkan gambar atau klik untuk memilih</div>
+            <div className="u-s">JPG, PNG, WebP — maks 4 MB</div>
+            {err && <div className="u-s" style={{ color: 'var(--danger)' }}>{err}</div>}
+          </div>
+        )
+      ) : (
+        <div>
           <input
-            ref={fileRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/jpg"
-            className="sr-only"
-            onChange={(e) => handleFile(e.target.files?.[0])}
-          />
-          {preview ? (
-            <>
-              <img src={preview} alt="Preview" className="max-h-40 max-w-full rounded-lg object-contain" />
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); handleClear() }}
-                className="absolute top-2 right-2 h-6 w-6 rounded-full bg-background border border-border flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground hover:border-destructive transition-colors"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </>
-          ) : (
-            <>
-              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                <ImageIcon className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div>
-                <p className="text-sm font-medium">Drop image here or click to browse</p>
-                <p className="text-xs text-muted-foreground mt-0.5">JPG, PNG, WebP — max 4 MB</p>
-              </div>
-            </>
-          )}
-          {sizeError && <p className="text-xs text-destructive">{sizeError}</p>}
-        </div>
-      )}
-
-      {tab === 'url' && (
-        <div className="space-y-2">
-          <input
+            className="input"
             type="url"
-            placeholder="https://example.com/image.jpg"
+            placeholder="https://contoh.com/gambar.jpg"
             value={urlInput}
             onChange={(e) => setUrlInput(e.target.value)}
-            onBlur={handleUrlBlur}
-            className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition-colors"
+            onBlur={() => (urlInput ? onChange({ mode: 'url', url: urlInput }) : onChange(null))}
           />
           {preview && (
-            <div className="relative rounded-xl border border-border overflow-hidden">
-              <img
-                src={preview}
-                alt="URL preview"
-                className="w-full max-h-48 object-contain bg-muted"
-                onError={(e) => { e.currentTarget.style.display = 'none' }}
-              />
-              <button
-                type="button"
-                onClick={handleClear}
-                className="absolute top-2 right-2 h-6 w-6 rounded-full bg-background border border-border flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground hover:border-destructive transition-colors"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
+            <div className="upload-preview" style={{ marginTop: 10 }}>
+              <img src={preview} alt="Pratinjau" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+              <button type="button" className="upload-x" onClick={clear} aria-label="Hapus"><X size={15} /></button>
             </div>
           )}
         </div>

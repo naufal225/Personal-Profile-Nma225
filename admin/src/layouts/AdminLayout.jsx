@@ -1,31 +1,36 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Sidebar from '../components/nav/Sidebar'
 import TopBar from '../components/nav/TopBar'
-import { Sheet, SheetContent, SheetTitle } from '../components/ui/Sheet'
+import CommandPalette from '../components/CommandPalette'
 
 export default function AdminLayout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [paletteOpen, setPaletteOpen] = useState(false)
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setPaletteOpen((v) => !v)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Desktop sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 lg:block">
-        <Sidebar />
+    <div className="app">
+      <div className={`sidebar${mobileOpen ? ' open' : ''}`}>
+        <Sidebar onNavigate={() => setMobileOpen(false)} />
+      </div>
+      <div className={`sb-scrim${mobileOpen ? ' show' : ''}`} onClick={() => setMobileOpen(false)} />
+
+      <div className="main">
+        <TopBar onMenuClick={() => setMobileOpen(true)} onSearchClick={() => setPaletteOpen(true)} />
+        <div className="content">{children}</div>
       </div>
 
-      {/* Mobile sidebar (drawer) */}
-      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-64 p-0">
-          <SheetTitle className="sr-only">Navigation</SheetTitle>
-          <Sidebar onNavigate={() => setMobileOpen(false)} />
-        </SheetContent>
-      </Sheet>
-
-      {/* Main column */}
-      <div className="lg:pl-64">
-        <TopBar onMenuClick={() => setMobileOpen(true)} />
-        <main className="p-4 sm:p-6 lg:p-8">{children}</main>
-      </div>
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </div>
   )
 }

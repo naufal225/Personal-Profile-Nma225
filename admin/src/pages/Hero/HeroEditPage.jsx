@@ -3,16 +3,15 @@ import { useForm, useController } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
+import { Sparkles } from 'lucide-react'
 import { adminGetHero, adminUpdateHeroWithFile } from '../../api/hero'
-import { Button } from '../../components/ui/Button'
-import PageHeader from '../../components/ui/PageHeader'
+import { FormShell, FormCard, FormSection, AsideCard } from '../../components/ui/Form'
 import FormField, { inputCls } from '../../components/ui/FormField'
 import ImageUpload from '../../components/ui/ImageUpload'
-import { Skeleton } from '../../components/ui/Skeleton'
 
 const schema = z.object({
-  headline: z.string().min(1, 'Headline is required'),
-  subheadline: z.string().min(1, 'Subheadline is required'),
+  headline: z.string().min(1, 'Headline wajib diisi'),
+  subheadline: z.string().min(1, 'Subheadline wajib diisi'),
   available_for_work: z.boolean().default(true),
   resume_url: z.string().optional().default(''),
   photo: z.any().optional(),
@@ -21,14 +20,9 @@ const schema = z.object({
 export default function HeroEditPage() {
   const [fetching, setFetching] = useState(true)
 
-  const {
-    register, handleSubmit, control, reset,
-    formState: { errors, isSubmitting },
-  } = useForm({
+  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting, isDirty } } = useForm({
     resolver: zodResolver(schema),
-    defaultValues: {
-      headline: '', subheadline: '', available_for_work: true, resume_url: '', photo: null,
-    },
+    defaultValues: { headline: '', subheadline: '', available_for_work: true, resume_url: '', photo: null },
   })
   const { field: photoField } = useController({ name: 'photo', control, defaultValue: null })
 
@@ -46,7 +40,7 @@ export default function HeroEditPage() {
           })
         }
       })
-      .catch(() => toast.error('Failed to load hero content'))
+      .catch(() => toast.error('Gagal memuat konten hero'))
       .finally(() => setFetching(false))
   }, [reset])
 
@@ -62,79 +56,60 @@ export default function HeroEditPage() {
       else if (data.photo?.mode === 'url') fd.append('photo_url', data.photo.url)
 
       await adminUpdateHeroWithFile(fd)
-      toast.success('Hero content updated')
+      toast.success('Konten hero diperbarui')
     } catch (e) {
-      toast.error(e.response?.data?.message || 'Failed to save')
+      toast.error(e.response?.data?.message || 'Gagal menyimpan')
     }
   }
 
   if (fetching) {
-    return (
-      <div className="max-w-2xl mx-auto space-y-4">
-        <Skeleton className="w-40 h-8" />
-        <Skeleton className="w-64 h-4" />
-        <Skeleton className="w-full h-72 rounded-xl" />
-        <Skeleton className="w-full h-48 rounded-xl" />
-      </div>
-    )
+    return <div className="card" style={{ height: 360 }}><div className="skeleton" style={{ height: '100%' }} /></div>
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <PageHeader
-        title="Hero Content"
-        description="The first thing visitors see on your portfolio."
-      />
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div className="p-6 space-y-5 border rounded-xl border-border bg-card">
-          <FormField label="Headline" error={errors.headline?.message} required>
-            <input
-              {...register('headline')}
-              className={errors.headline ? inputCls + ' border-destructive' : inputCls}
-              placeholder="Crafting digital experiences..."
-            />
+    <FormShell
+      title="Konten Hero"
+      subtitle="Bagian pertama yang dilihat pengunjung di portfolio Anda."
+      backTo="/dashboard"
+      cancelTo="/dashboard"
+      onSubmit={handleSubmit(onSubmit)}
+      submitting={isSubmitting}
+      submitLabel="Simpan"
+      dirty={isDirty}
+      aside={
+        <>
+          <AsideCard title="Foto Profil">
+            <ImageUpload value={photoField.value} onChange={photoField.onChange} />
+          </AsideCard>
+          <AsideCard title="Pengaturan">
+            <div className="toggle-row">
+              <div>
+                <div className="tt">Tersedia untuk proyek</div>
+                <div className="ts">Tampilkan badge "tersedia" di hero.</div>
+              </div>
+              <label className="switch">
+                <input type="checkbox" {...register('available_for_work')} />
+                <span className="track" />
+                <span className="knob" />
+              </label>
+            </div>
+          </AsideCard>
+        </>
+      }
+    >
+      <FormCard>
+        <FormSection icon={Sparkles} title="Konten Hero">
+          <FormField className="full" label="Headline" error={errors.headline?.message} required description="Baris peran di bawah nama Anda.">
+            <input {...register('headline')} className={inputCls} placeholder="Backend-Focused Full-Stack Developer" />
           </FormField>
-
-          <FormField label="Subheadline" error={errors.subheadline?.message} required description="The descriptive line below your name.">
-            <textarea
-              {...register('subheadline')}
-              rows={3}
-              className={errors.subheadline ? inputCls + ' border-destructive' : inputCls}
-              placeholder="Fullstack developer specializing in..."
-            />
+          <FormField className="full" label="Subheadline" error={errors.subheadline?.message} required description="Paragraf deskripsi singkat.">
+            <textarea {...register('subheadline')} rows={3} className="textarea" placeholder="Saya merancang dan membangun sistem web yang skalabel…" />
           </FormField>
-
-          <FormField label="Resume URL" error={errors.resume_url?.message} description="Public link to your CV/resume.">
-            <input
-              {...register('resume_url')}
-              type="url"
-              className={inputCls}
-              placeholder="https://drive.google.com/..."
-            />
+          <FormField className="full" label="Resume URL" error={errors.resume_url?.message} description="Tautan publik ke CV/resume Anda.">
+            <input {...register('resume_url')} type="url" className={inputCls} placeholder="https://drive.google.com/..." />
           </FormField>
-
-          <label className="flex items-center gap-2.5 text-sm text-foreground cursor-pointer select-none">
-            <input
-              type="checkbox"
-              {...register('available_for_work')}
-              className="w-4 h-4 rounded border-border accent-primary"
-            />
-            <span>Available for work</span>
-          </label>
-        </div>
-
-        <div className="p-6 border rounded-xl border-border bg-card">
-          <p className="mb-3 text-sm font-medium text-foreground">Profile Photo</p>
-          <ImageUpload value={photoField.value} onChange={photoField.onChange} />
-        </div>
-
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving…' : 'Save Changes'}
-          </Button>
-        </div>
-      </form>
-    </div>
+        </FormSection>
+      </FormCard>
+    </FormShell>
   )
 }

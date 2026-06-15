@@ -1,20 +1,19 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useForm, useController } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
+import { Folder, Tags } from 'lucide-react'
 import { adminGetProject, adminUpdateProjectWithFile } from '../../api/projects'
-import { Button } from '../../components/ui/Button'
+import { FormShell, FormCard, FormSection, AsideCard } from '../../components/ui/Form'
 import FormField, { inputCls } from '../../components/ui/FormField'
 import ImageUpload from '../../components/ui/ImageUpload'
 import SkillsSelector from '../../components/ui/SkillsSelector'
-import { Skeleton } from '../../components/ui/Skeleton'
 
 const schema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().min(1, 'Description is required'),
+  title: z.string().min(1, 'Judul wajib diisi'),
+  description: z.string().min(1, 'Deskripsi wajib diisi'),
   tech_stacks: z.array(z.string()).default([]),
   github_url: z.string().optional().default(''),
   demo_url: z.string().optional().default(''),
@@ -27,7 +26,7 @@ export default function ProjectEdit() {
   const navigate = useNavigate()
   const [fetching, setFetching] = useState(true)
 
-  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting, isDirty } } = useForm({
     resolver: zodResolver(schema),
   })
   const { field: thumbnailField } = useController({ name: 'thumbnail', control, defaultValue: null })
@@ -47,7 +46,7 @@ export default function ProjectEdit() {
           thumbnail: p.thumbnail_path ? { mode: 'url', url: p.thumbnail_path } : null,
         })
       })
-      .catch(() => toast.error('Failed to load project'))
+      .catch(() => toast.error('Gagal memuat proyek'))
       .finally(() => setFetching(false))
   }, [id, reset])
 
@@ -64,78 +63,55 @@ export default function ProjectEdit() {
       else if (data.thumbnail?.mode === 'url') fd.append('thumbnail_url', data.thumbnail.url)
 
       await adminUpdateProjectWithFile(id, fd)
-      toast.success('Project updated')
+      toast.success('Proyek diperbarui')
       navigate(`/projects/${id}`)
     } catch (e) {
-      toast.error(e.response?.data?.message || 'Failed to update')
+      toast.error(e.response?.data?.message || 'Gagal memperbarui')
     }
   }
 
   if (fetching) {
-    return (
-      <div className="max-w-2xl mx-auto space-y-4">
-        <Skeleton className="h-7 w-40" />
-        <Skeleton className="h-96 w-full rounded-xl" />
-      </div>
-    )
+    return <div className="card" style={{ height: 360 }}><div className="skeleton" style={{ height: '100%' }} /></div>
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-6">
-        <Button asChild variant="ghost" size="sm" className="-ml-2">
-          <Link to={`/projects/${id}`}><ArrowLeft className="h-4 w-4" /> Back</Link>
-        </Button>
-        <h1 className="text-2xl font-semibold tracking-tight mt-2">Edit Project</h1>
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div className="rounded-xl border border-border bg-card p-6 space-y-5">
-          <FormField label="Title" error={errors.title?.message} required>
-            <input {...register('title')} className={errors.title ? inputCls + ' border-destructive' : inputCls} />
-          </FormField>
-
-          <FormField label="Description" error={errors.description?.message} required>
-            <textarea {...register('description')} rows={4} className={errors.description ? inputCls + ' border-destructive' : inputCls} />
-          </FormField>
-
-          <div className="grid grid-cols-2 gap-4">
-            <FormField label="GitHub URL">
-              <input {...register('github_url')} className={inputCls} type="url" />
-            </FormField>
-            <FormField label="Demo URL">
-              <input {...register('demo_url')} className={inputCls} type="url" />
-            </FormField>
-          </div>
-
-          <FormField label="Display Order">
-            <input {...register('order')} type="number" className={inputCls} style={{ width: '100px' }} />
-          </FormField>
-        </div>
-
-        <div className="rounded-xl border border-border bg-card p-6">
-          <p className="text-sm font-medium text-foreground mb-3">Tech Stacks</p>
-          <SkillsSelector
-            value={techStacksField.value}
-            onChange={techStacksField.onChange}
-            error={errors.tech_stacks?.message}
-          />
-        </div>
-
-        <div className="rounded-xl border border-border bg-card p-6">
-          <p className="text-sm font-medium text-foreground mb-3">Thumbnail Image</p>
+    <FormShell
+      title="Edit Proyek"
+      backTo={`/projects/${id}`}
+      cancelTo={`/projects/${id}`}
+      onSubmit={handleSubmit(onSubmit)}
+      submitting={isSubmitting}
+      submitLabel="Simpan Perubahan"
+      dirty={isDirty}
+      aside={
+        <AsideCard title="Thumbnail">
           <ImageUpload value={thumbnailField.value} onChange={thumbnailField.onChange} />
-        </div>
+        </AsideCard>
+      }
+    >
+      <FormCard>
+        <FormSection icon={Folder} title="Detail Proyek">
+          <FormField className="full" label="Judul" error={errors.title?.message} required>
+            <input {...register('title')} className={inputCls} />
+          </FormField>
+          <FormField className="full" label="Deskripsi" error={errors.description?.message} required>
+            <textarea {...register('description')} rows={4} className="textarea" />
+          </FormField>
+          <FormField label="GitHub URL" error={errors.github_url?.message}>
+            <input {...register('github_url')} className={inputCls} type="url" />
+          </FormField>
+          <FormField label="Demo URL" error={errors.demo_url?.message}>
+            <input {...register('demo_url')} className={inputCls} type="url" />
+          </FormField>
+          <FormField label="Urutan" error={errors.order?.message}>
+            <input {...register('order')} type="number" className={inputCls} />
+          </FormField>
+        </FormSection>
 
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <Button asChild variant="ghost">
-            <Link to={`/projects/${id}`}>Cancel</Link>
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving…' : 'Save Changes'}
-          </Button>
-        </div>
-      </form>
-    </div>
+        <FormSection icon={Tags} title="Tech Stack" sub="Teknologi yang digunakan pada proyek ini." plain>
+          <SkillsSelector value={techStacksField.value} onChange={techStacksField.onChange} />
+        </FormSection>
+      </FormCard>
+    </FormShell>
   )
 }

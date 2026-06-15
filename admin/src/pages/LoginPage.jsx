@@ -1,12 +1,20 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { LayoutGrid, Image, FileText, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
+
+const FEATURES = [
+  { icon: LayoutGrid, label: 'Kelola section, skill, dan proyek' },
+  { icon: Image, label: 'Atur hero, sertifikat & kontak' },
+  { icon: FileText, label: 'Susun layanan dan perjalanan karier' },
+]
 
 export default function LoginPage() {
   const { login, isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPass, setShowPass] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -24,14 +32,11 @@ export default function LoginPage() {
       const status = err.response?.status
       const data = err.response?.data
       if (status === 422 && data?.errors) {
-        const first = Object.values(data.errors).flat()[0]
-        setError(first || 'Validation failed.')
-      } else if (status === 422) {
-        setError(data?.message || 'Validation failed.')
+        setError(Object.values(data.errors).flat()[0] || 'Validasi gagal.')
       } else if (status === 401) {
-        setError('Email or password is incorrect.')
+        setError('Email atau password salah.')
       } else {
-        setError(`Error ${status ?? 'unknown'}: ${data?.message ?? 'Something went wrong.'}`)
+        setError(data?.message || 'Terjadi kesalahan. Coba lagi.')
       }
     } finally {
       setLoading(false)
@@ -39,95 +44,83 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen grid place-items-center px-4 py-12 bg-slate-50 dark:bg-ink-950 overflow-hidden">
-      {/* Decorative blobs */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[520px] h-[520px] max-w-[90vw] rounded-full bg-violet-400/25 dark:bg-violet-500/15 blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-[420px] h-[420px] max-w-[90vw] rounded-full bg-indigo-400/15 dark:bg-indigo-500/10 blur-3xl" />
+    <div className="login">
+      <div className="login-aside">
+        <span className="glow g1" />
+        <span className="glow g2" />
+
+        <div className="login-brand">
+          <span className="sb-mark">N</span>
+          <div>
+            <div className="t" style={{ fontFamily: 'var(--font-display)', fontWeight: 600, color: 'var(--text)' }}>Naufal CMS</div>
+            <div className="s" style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, color: 'var(--muted)' }}>Portfolio Admin</div>
+          </div>
+        </div>
+
+        <div className="login-hero">
+          <h1>Kelola portfolio Anda<br />dari satu <span className="accent">panel</span>.</h1>
+          <p>Perbarui konten, atur urutan section, dan kelola seluruh data portfolio dengan mudah dan cepat.</p>
+          <div className="login-feats">
+            {FEATURES.map((f, i) => {
+              const Icon = f.icon
+              return (
+                <div className="login-feat" key={i}>
+                  <span className="fi"><Icon /></span>
+                  {f.label}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        <div className="login-foot">© {new Date().getFullYear()} Naufal Ma'ruf Ashrori · Built with Laravel &amp; React</div>
       </div>
 
-      <div className="w-full max-w-sm">
-        {import.meta.env.VITE_PUBLIC_URL && (
-          <a
-            href={import.meta.env.VITE_PUBLIC_URL}
-            className="inline-flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-500 hover:text-slate-700 dark:hover:text-zinc-300 transition-colors mb-6"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
-            Back to portfolio
-          </a>
-        )}
+      <div className="login-main">
+        <form className="login-form" onSubmit={handleSubmit}>
+          <div className="lf-eyebrow">// ADMIN ACCESS</div>
+          <h2>Selamat datang kembali</h2>
+          <p className="sub">Masuk untuk mengelola konten portfolio Anda.</p>
 
-        <div className="rounded-2xl border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.02] backdrop-blur-xl p-7 sm:p-8 shadow-2xl shadow-slate-900/10 dark:shadow-black/40">
-          <div className="text-center mb-7">
-            <div className="inline-grid place-items-center w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-500 text-white text-xl font-bold mb-4 shadow-lg shadow-violet-500/30">
-              N
-            </div>
-            <h1 className="text-xl font-semibold text-slate-900 dark:text-white tracking-tight mb-1">
-              Admin Sign In
-            </h1>
-            <p className="text-sm text-slate-500 dark:text-zinc-500">
-              Manage your portfolio content
-            </p>
+          {error && <div className="login-err">{error}</div>}
+
+          <div className="field">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              className="input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              placeholder="you@example.com"
+            />
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-xs font-medium text-slate-600 dark:text-zinc-400 mb-1.5">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-                placeholder="you@example.com"
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white text-sm placeholder:text-slate-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-violet-400 dark:focus:border-violet-400/50 focus:bg-white dark:focus:bg-white/[0.05] transition-all"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-xs font-medium text-slate-600 dark:text-zinc-400 mb-1.5">
-                Password
-              </label>
+          <div className="field">
+            <label htmlFor="password">Password</label>
+            <div className="field-pass">
               <input
                 id="password"
-                type="password"
+                type={showPass ? 'text' : 'password'}
+                className="input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
                 placeholder="••••••••"
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white text-sm placeholder:text-slate-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-violet-400 dark:focus:border-violet-400/50 focus:bg-white dark:focus:bg-white/[0.05] transition-all"
               />
+              <button type="button" className="eye" onClick={() => setShowPass((v) => !v)} aria-label={showPass ? 'Sembunyikan' : 'Tampilkan'}>
+                {showPass ? <EyeOff size={17} /> : <Eye size={17} />}
+              </button>
             </div>
+          </div>
 
-            {error && (
-              <div className="px-3 py-2 rounded-lg bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-400/30 text-xs text-rose-700 dark:text-rose-300">
-                {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-gradient-to-br from-violet-500 to-indigo-500 text-white shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40 hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-            >
-              {loading ? (
-                <>
-                  <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" opacity="0.25" /><path d="M22 12a10 10 0 0 1-10 10" /></svg>
-                  Signing in...
-                </>
-              ) : (
-                <>
-                  Sign In
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
-                </>
-              )}
-            </button>
-          </form>
-        </div>
+          <button type="submit" className="btn btn-primary" disabled={loading} style={{ marginTop: 8 }}>
+            {loading ? 'Memproses…' : 'Masuk'}
+          </button>
+        </form>
       </div>
     </div>
   )

@@ -1,84 +1,74 @@
-import { useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
+import { GraduationCap } from 'lucide-react'
 import { adminCreateEducation } from '../../api/educations'
-import { Button } from '../../components/ui/Button'
+import { FormShell, FormCard, FormSection } from '../../components/ui/Form'
 import FormField, { inputCls } from '../../components/ui/FormField'
 
 const schema = z.object({
-  institution: z.string().min(1, 'Institution is required'),
+  institution: z.string().min(1, 'Institusi wajib diisi'),
   major: z.string().optional().default(''),
   description: z.string().optional().default(''),
-  start_year: z.coerce.number().int().min(1900, 'Invalid year').max(2100, 'Invalid year'),
+  start_year: z.coerce.number().int().min(1900, 'Tahun tidak valid').max(2100, 'Tahun tidak valid'),
   end_year: z.union([z.coerce.number().int().min(1900).max(2100), z.literal('').transform(() => null)]).optional().nullable(),
 })
 
 export default function EducationCreate() {
   const navigate = useNavigate()
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm({
     resolver: zodResolver(schema),
     defaultValues: { institution: '', major: '', description: '', start_year: '', end_year: '' },
   })
 
   const onSubmit = async (data) => {
     try {
-      const payload = {
+      const res = await adminCreateEducation({
         institution: data.institution,
         major: data.major || null,
         description: data.description || null,
         start_year: Number(data.start_year),
         end_year: data.end_year ? Number(data.end_year) : null,
-      }
-      const res = await adminCreateEducation(payload)
-      toast.success('Education created')
+      })
+      toast.success('Pendidikan dibuat')
       navigate(`/educations/${res.data.data.id}`)
     } catch (e) {
-      toast.error(e.response?.data?.message || 'Failed to create education')
+      toast.error(e.response?.data?.message || 'Gagal membuat pendidikan')
     }
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-6">
-        <Button asChild variant="ghost" size="sm" className="-ml-2">
-          <Link to="/educations"><ArrowLeft className="h-4 w-4" /> Back to educations</Link>
-        </Button>
-        <h1 className="text-2xl font-semibold tracking-tight mt-2">New Education</h1>
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div className="rounded-xl border border-border bg-card p-6 space-y-5">
-          <FormField label="Institution" error={errors.institution?.message} required>
-            <input {...register('institution')} className={errors.institution ? inputCls + ' border-destructive' : inputCls} placeholder="University of ..." />
+    <FormShell
+      title="Pendidikan Baru"
+      subtitle="Tambahkan riwayat sekolah atau gelar."
+      backTo="/educations"
+      cancelTo="/educations"
+      onSubmit={handleSubmit(onSubmit)}
+      submitting={isSubmitting}
+      submitLabel="Buat Pendidikan"
+      dirty={isDirty}
+    >
+      <FormCard>
+        <FormSection icon={GraduationCap} title="Detail Pendidikan">
+          <FormField className="full" label="Institusi" error={errors.institution?.message} required>
+            <input {...register('institution')} className={inputCls} placeholder="Politeknik Negeri Jakarta" />
           </FormField>
-          <FormField label="Major / Field of Study" error={errors.major?.message}>
-            <input {...register('major')} className={inputCls} placeholder="Computer Science" />
+          <FormField className="full" label="Jurusan / Bidang" error={errors.major?.message}>
+            <input {...register('major')} className={inputCls} placeholder="Teknik Informatika" />
           </FormField>
-          <FormField label="Description" error={errors.description?.message} description="Highlights, GPA, projects...">
-            <textarea {...register('description')} rows={3} className={inputCls} />
+          <FormField className="full" label="Deskripsi" error={errors.description?.message} description="Pencapaian, IPK, kegiatan…">
+            <textarea {...register('description')} rows={3} className="textarea" />
           </FormField>
-          <div className="grid grid-cols-2 gap-4">
-            <FormField label="Start Year" error={errors.start_year?.message} required>
-              <input {...register('start_year')} type="number" min="1900" max="2100" className={errors.start_year ? inputCls + ' border-destructive' : inputCls} placeholder="2020" />
-            </FormField>
-            <FormField label="End Year" error={errors.end_year?.message} description="Empty = Present.">
-              <input {...register('end_year')} type="number" min="1900" max="2100" className={inputCls} placeholder="2024" />
-            </FormField>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <Button asChild variant="ghost">
-            <Link to="/educations">Cancel</Link>
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving…' : 'Create Education'}
-          </Button>
-        </div>
-      </form>
-    </div>
+          <FormField label="Tahun Mulai" error={errors.start_year?.message} required>
+            <input {...register('start_year')} type="number" min="1900" max="2100" className={inputCls} placeholder="2020" />
+          </FormField>
+          <FormField label="Tahun Selesai" error={errors.end_year?.message} description="Kosong = sekarang.">
+            <input {...register('end_year')} type="number" min="1900" max="2100" className={inputCls} placeholder="2024" />
+          </FormField>
+        </FormSection>
+      </FormCard>
+    </FormShell>
   )
 }

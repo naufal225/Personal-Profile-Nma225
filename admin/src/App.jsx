@@ -76,6 +76,7 @@ export default function App() {
         theme === 'dark' ||
         (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
       document.documentElement.classList.toggle('dark', isDark)
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
     }
     apply(useThemeStore.getState().theme)
     return useThemeStore.subscribe((state) => apply(state.theme))

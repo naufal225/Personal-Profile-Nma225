@@ -7,10 +7,15 @@ import HomePage from './pages/public/HomePage'
 export default function App() {
   useEffect(() => {
     const apply = (theme) => {
-      document.documentElement.classList.toggle('dark', theme === 'dark')
+      document.documentElement.setAttribute('data-theme', theme)
     }
     apply(useThemeStore.getState().theme)
-    return useThemeStore.subscribe((state) => apply(state.theme))
+    const unsub = useThemeStore.subscribe((state) => apply(state.theme))
+
+    // Enable hero entrance + scroll animations (no-JS / reduced-motion still show content)
+    document.documentElement.classList.add('anim')
+
+    return unsub
   }, [])
 
   return (

@@ -1,231 +1,124 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Plus, MoreHorizontal, Eye, Pencil, Trash2, GripVertical } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { adminGetProjects, adminDeleteProject, adminReorderProjects } from '../../api/projects'
-import { Button } from '../../components/ui/Button'
 import PageHeader from '../../components/ui/PageHeader'
 import ConfirmDialog from '../../components/ui/ConfirmDialog'
-import { Skeleton } from '../../components/ui/Skeleton'
-import {
-  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent,
-  DropdownMenuItem, DropdownMenuSeparator,
-} from '../../components/ui/DropdownMenu'
+import DataTable from '../../components/ui/DataTable'
+import RowActions from '../../components/ui/RowActions'
+
+function initials(title) {
+  return (title || '?').split(/\s+/).map((w) => w[0]).join('').replace(/[^A-Za-z0-9]/g, '').substring(0, 3).toUpperCase()
+}
 
 export default function ProjectsIndex() {
-  const navigate = useNavigate()
-  const [projects, setProjects] = useState([])
+  const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [deleteId, setDeleteId] = useState(null)
   const [deleting, setDeleting] = useState(false)
-  const [draggedIndex, setDraggedIndex] = useState(null)
 
   const load = () => {
     setLoading(true)
     adminGetProjects()
-      .then((r) => setProjects(r.data.data ?? []))
-      .catch(() => toast.error('Failed to load projects'))
+      .then((r) => setItems(r.data.data ?? []))
+      .catch(() => toast.error('Gagal memuat proyek'))
       .finally(() => setLoading(false))
   }
-
   useEffect(() => { load() }, [])
 
   const handleDelete = async () => {
     setDeleting(true)
     try {
       await adminDeleteProject(deleteId)
-      toast.success('Project deleted')
+      toast.success('Proyek dihapus')
       setDeleteId(null)
       load()
     } catch {
-      toast.error('Failed to delete')
+      toast.error('Gagal menghapus')
     } finally {
       setDeleting(false)
     }
   }
 
-  // Drag and drop handlers
-  const handleDragStart = (e, index) => {
-    setDraggedIndex(index)
-    e.dataTransfer.effectAllowed = 'move'
-  }
-
-  const handleDragOver = (e, index) => {
-    e.preventDefault()
-    if (draggedIndex === null || draggedIndex === index) return
-
-    const newProjects = [...projects]
-    const draggedItem = newProjects[draggedIndex]
-    newProjects.splice(draggedIndex, 1)
-    newProjects.splice(index, 0, draggedItem)
-
-    setDraggedIndex(index)
-    setProjects(newProjects)
-  }
-
-  const handleDragEnd = async () => {
-    setDraggedIndex(null)
+  const persistOrder = async () => {
     try {
-      const payload = projects.map((item, idx) => ({
-        id: item.id,
-        order: idx + 1,
-      }))
-      await adminReorderProjects(payload)
-      toast.success('Projects order updated')
+      await adminReorderProjects(items.map((it, i) => ({ id: it.id, order: i + 1 })))
+      toast.success('Urutan disimpan')
     } catch {
-      toast.error('Failed to save projects order')
+      toast.error('Gagal menyimpan urutan')
     }
   }
+
+  const columns = [
+    {
+      key: 'title', header: 'Proyek',
+      render: (row) => {
+        const stacks = Array.isArray(row.tech_stacks) ? row.tech_stacks : []
+        return (
+          <div className="cell-main">
+            {row.thumbnail_path ? (
+              <img className="thumb-xs" src={row.thumbnail_path} alt={row.title} />
+            ) : (
+              <span className="thumb-xs ph">{initials(row.title)}</span>
+            )}
+            <div style={{ minWidth: 0 }}>
+              <div className="cell-title" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 280 }}>{row.title}</div>
+              {row.description && <div className="cell-sub" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 280 }}>{row.description}</div>}
+              {stacks.length > 0 && (
+                <div className="tags-cell" style={{ marginTop: 6 }}>
+                  {stacks.slice(0, 3).map((t) => <span key={t} className="tag-mono">{t}</span>)}
+                  {stacks.length > 3 && <span className="tag-mono">+{stacks.length - 3}</span>}
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      },
+    },
+    {
+      key: 'links', header: 'Tautan', width: 120,
+      render: (row) => (
+        <div style={{ display: 'flex', gap: 6, fontSize: 12 }}>
+          {row.github_url && <span className="tag-mono">Git</span>}
+          {row.demo_url && <span className="tag-mono">Demo</span>}
+          {!row.github_url && !row.demo_url && <span style={{ color: 'var(--faint)' }}>—</span>}
+        </div>
+      ),
+    },
+    {
+      key: 'actions', header: '', width: 96,
+      render: (row) => <RowActions editTo={`/projects/${row.id}/edit`} onDelete={() => setDeleteId(row.id)} />,
+    },
+  ]
 
   return (
     <>
       <PageHeader
         title="Projects"
-        description="Manage your portfolio projects. Drag and drop rows to reorder them."
-        action={
-          <Button asChild>
-            <Link to="/projects/create">
-              <Plus className="h-4 w-4" /> Add Project
-            </Link>
-          </Button>
-        }
+        description="Kelola proyek portfolio Anda. Geser baris untuk mengurutkan."
+        action={<Link to="/projects/create" className="btn btn-primary"><Plus /> Tambah Proyek</Link>}
       />
 
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-muted/30">
-                <th className="w-[48px] px-4 py-3"></th>
-                <th className="w-[56px] px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Thumbnail</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Title & Description</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Tech Stacks</th>
-                <th className="w-[48px] px-4 py-3 text-right"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className="border-b border-border last:border-0">
-                    <td className="px-4 py-4"><Skeleton className="h-5 w-4" /></td>
-                    <td className="px-4 py-4"><Skeleton className="h-10 w-10 rounded-lg" /></td>
-                    <td className="px-4 py-4">
-                      <Skeleton className="h-5 w-48 mb-1" />
-                      <Skeleton className="h-4 w-32" />
-                    </td>
-                    <td className="px-4 py-4"><Skeleton className="h-5 w-36" /></td>
-                    <td className="px-4 py-4"><Skeleton className="h-8 w-8 rounded-full" /></td>
-                  </tr>
-                ))
-              ) : projects.length === 0 ? (
-                <tr>
-                  <td colSpan={5}>
-                    <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-                      <p className="text-sm text-muted-foreground">No projects yet.</p>
-                      <Button asChild size="sm" variant="outline">
-                        <Link to="/projects/create">
-                          <Plus className="h-3.5 w-3.5" /> Add your first project
-                        </Link>
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                projects.map((row, index) => {
-                  const isDragging = draggedIndex === index
-                  const stacks = Array.isArray(row.tech_stacks) ? row.tech_stacks : []
-                  const shownStacks = stacks.slice(0, 3)
-                  const restStacksCount = stacks.length - 3
-
-                  return (
-                    <tr
-                      key={row.id}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, index)}
-                      onDragOver={(e) => handleDragOver(e, index)}
-                      onDragEnd={handleDragEnd}
-                      className={`border-b border-border last:border-0 hover:bg-muted/20 transition-colors ${
-                        isDragging ? 'bg-accent/40 opacity-50' : ''
-                      }`}
-                    >
-                      <td className="px-4 py-3 text-center text-muted-foreground">
-                        <div className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded transition-colors inline-block">
-                          <GripVertical className="h-4 w-4" />
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        {row.thumbnail_path ? (
-                          <img
-                            src={row.thumbnail_path}
-                            alt={row.title}
-                            className="h-10 w-10 rounded-lg object-cover bg-muted shrink-0"
-                          />
-                        ) : (
-                          <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                            <span className="text-muted-foreground text-xs">–</span>
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="min-w-0">
-                          <p className="font-medium text-foreground truncate max-w-[240px]">{row.title}</p>
-                          {row.description && (
-                            <p className="text-xs text-muted-foreground truncate max-w-[240px] mt-0.5">{row.description}</p>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-1">
-                          {shownStacks.map((t) => (
-                            <span key={t} className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted text-xs font-medium text-muted-foreground">
-                              {t}
-                            </span>
-                          ))}
-                          {restStacksCount > 0 && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted text-xs text-muted-foreground">
-                              +{restStacksCount}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => navigate(`/projects/${row.id}`)}>
-                              <Eye className="h-4 w-4" /> View
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => navigate(`/projects/${row.id}/edit`)}>
-                              <Pencil className="h-4 w-4" /> Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                              onClick={() => setDeleteId(row.id)}
-                            >
-                              <Trash2 className="h-4 w-4" /> Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  )
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <DataTable
+        columns={columns}
+        data={items}
+        loading={loading}
+        itemLabel="proyek"
+        searchKeys={['title', 'description', 'tech_stacks']}
+        searchPlaceholder="Cari proyek…"
+        reorderable
+        onReorder={setItems}
+        onReorderEnd={persistOrder}
+        emptyMessage="Belum ada proyek."
+        emptyAction={<Link to="/projects/create" className="btn btn-ghost btn-sm"><Plus size={15} /> Tambah proyek pertama</Link>}
+      />
 
       <ConfirmDialog
         open={!!deleteId}
         onOpenChange={(v) => !v && setDeleteId(null)}
-        title="Delete project?"
-        description="This will permanently remove the project. This action cannot be undone."
+        title="Hapus proyek?"
+        description="Proyek ini akan dihapus secara permanen."
         onConfirm={handleDelete}
         loading={deleting}
       />
