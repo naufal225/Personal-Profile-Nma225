@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { Briefcase } from 'lucide-react'
 import { toast } from 'sonner'
 import { adminGetExperience, adminDeleteExperience } from '../../api/experiences'
-import { FormCard, FormSection } from '../../components/ui/Form'
+import { FormCard, FormSection, AsideCard } from '../../components/ui/Form'
 import { DetailShell, MetaRow, DetailBlock, DetailLoading, DetailNotFound } from '../../components/ui/Detail'
 import { formatDate } from '../../utils/formatDate'
 
@@ -33,6 +33,13 @@ export default function ExperienceShow() {
       redirectTo="/experiences"
       deleteTitle="Hapus pengalaman?"
       deleteDescription={`"${item.title}" akan dihapus secara permanen.`}
+      aside={
+        item.icon ? (
+          <AsideCard title="Icon">
+            <div className="detail-icon"><img src={item.icon} alt={item.organization} /></div>
+          </AsideCard>
+        ) : null
+      }
     >
       <FormCard>
         <FormSection icon={Briefcase} title="Detail Pengalaman" plain>

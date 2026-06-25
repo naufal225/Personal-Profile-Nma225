@@ -5,10 +5,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { Briefcase, Tags } from 'lucide-react'
-import { adminGetExperience, adminUpdateExperience } from '../../api/experiences'
-import { FormShell, FormCard, FormSection } from '../../components/ui/Form'
+import { adminGetExperience, adminUpdateExperienceWithFile } from '../../api/experiences'
+import { FormShell, FormCard, FormSection, AsideCard } from '../../components/ui/Form'
 import FormField, { inputCls } from '../../components/ui/FormField'
 import SkillsSelector from '../../components/ui/SkillsSelector'
+import ImageUpload from '../../components/ui/ImageUpload'
 
 const schema = z.object({
   title: z.string().min(1, 'Posisi wajib diisi'),
@@ -17,6 +18,7 @@ const schema = z.object({
   skills: z.array(z.string()).min(1, 'Minimal satu skill'),
   start_date: z.string().min(1, 'Tanggal mulai wajib diisi'),
   end_date: z.string().optional().default(''),
+  icon: z.any().optional(),
 })
 
 function toDateInput(value) {
@@ -31,8 +33,10 @@ export default function ExperienceEdit() {
 
   const { register, handleSubmit, control, reset, formState: { errors, isSubmitting, isDirty } } = useForm({
     resolver: zodResolver(schema),
+    defaultValues: { icon: null },
   })
   const { field: skillsField } = useController({ name: 'skills', control, defaultValue: [] })
+  const { field: iconField } = useController({ name: 'icon', control, defaultValue: null })
 
   useEffect(() => {
     adminGetExperience(id)
@@ -45,6 +49,7 @@ export default function ExperienceEdit() {
           skills: Array.isArray(d.skills) ? d.skills : [],
           start_date: toDateInput(d.start_date),
           end_date: toDateInput(d.end_date),
+          icon: d.icon ? { mode: 'url', url: d.icon } : null,
         })
       })
       .catch(() => toast.error('Gagal memuat pengalaman'))
@@ -53,14 +58,17 @@ export default function ExperienceEdit() {
 
   const onSubmit = async (data) => {
     try {
-      await adminUpdateExperience(id, {
-        title: data.title,
-        organization: data.organization,
-        description: data.description || null,
-        skills: data.skills,
-        start_date: data.start_date,
-        end_date: data.end_date || null,
-      })
+      const fd = new FormData()
+      fd.append('title', data.title)
+      fd.append('organization', data.organization)
+      fd.append('description', data.description || '')
+      data.skills.forEach((s) => fd.append('skills[]', s))
+      fd.append('start_date', data.start_date)
+      fd.append('end_date', data.end_date || '')
+      if (data.icon?.mode === 'file') fd.append('icon_file', data.icon.file)
+      else if (data.icon?.mode === 'url') fd.append('icon_url', data.icon.url)
+
+      await adminUpdateExperienceWithFile(id, fd)
       toast.success('Pengalaman diperbarui')
       navigate(`/experiences/${id}`)
     } catch (e) {
@@ -81,6 +89,12 @@ export default function ExperienceEdit() {
       submitting={isSubmitting}
       submitLabel="Simpan Perubahan"
       dirty={isDirty}
+      aside={
+        <AsideCard title="Icon (opsional)">
+          <ImageUpload value={iconField.value} onChange={iconField.onChange} />
+          <p className="hint" style={{ marginTop: 10 }}>Logo perusahaan / instansi. Kosongkan untuk memakai icon bawaan.</p>
+        </AsideCard>
+      }
     >
       <FormCard>
         <FormSection icon={Briefcase} title="Detail Pengalaman">

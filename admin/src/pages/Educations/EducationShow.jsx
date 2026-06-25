@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { GraduationCap } from 'lucide-react'
 import { toast } from 'sonner'
 import { adminGetEducation, adminDeleteEducation } from '../../api/educations'
-import { FormCard, FormSection } from '../../components/ui/Form'
+import { FormCard, FormSection, AsideCard } from '../../components/ui/Form'
 import { DetailShell, MetaRow, DetailBlock, DetailLoading, DetailNotFound } from '../../components/ui/Detail'
 import { formatYear } from '../../utils/formatDate'
 
@@ -31,6 +31,13 @@ export default function EducationShow() {
       redirectTo="/educations"
       deleteTitle="Hapus pendidikan?"
       deleteDescription={`"${item.institution}" akan dihapus secara permanen.`}
+      aside={
+        item.icon ? (
+          <AsideCard title="Icon">
+            <div className="detail-icon"><img src={item.icon} alt={item.institution} /></div>
+          </AsideCard>
+        ) : null
+      }
     >
       <FormCard>
         <FormSection icon={GraduationCap} title="Detail Pendidikan" plain>

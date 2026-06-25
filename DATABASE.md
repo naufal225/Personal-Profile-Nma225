@@ -61,6 +61,7 @@ Single-row table. Always seed one record. Never allow delete from admin.
 | id | bigint PK | |
 | title | varchar(255) | e.g. "Wakil Ketua" |
 | organization | varchar(255) | e.g. "SMK Telesandi" |
+| icon | varchar(255) | nullable — custom icon URL; falls back to a default icon when empty |
 | description | text | nullable |
 | skills | jsonb | array of strings |
 | start_date | date | |
@@ -79,6 +80,7 @@ Display order: `ORDER BY start_date DESC`
 |---|---|---|
 | id | bigint PK | |
 | institution | varchar(255) | |
+| icon | varchar(255) | nullable — custom icon URL; falls back to a default icon when empty |
 | major | varchar(255) | nullable |
 | description | text | nullable — achievements, notes |
 | start_year | smallint | |

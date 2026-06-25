@@ -7,3 +7,11 @@ export const adminUpdateExperience = (id, data) => apiClient.put(`/admin/experie
 export const adminDeleteExperience = (id) => apiClient.delete(`/admin/experiences/${id}`)
 
 export const adminGetExperience = (id) => apiClient.get(`/admin/experiences/${id}`)
+
+export const adminCreateExperienceWithFile = (formData) =>
+  apiClient.post('/admin/experiences', formData)
+
+export const adminUpdateExperienceWithFile = (id, formData) => {
+  formData.append('_method', 'PUT')
+  return apiClient.post(`/admin/experiences/${id}`, formData)
+}

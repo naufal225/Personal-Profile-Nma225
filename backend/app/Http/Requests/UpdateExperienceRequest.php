@@ -16,6 +16,8 @@ class UpdateExperienceRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'organization' => ['required', 'string', 'max:255'],
+            'icon_file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
+            'icon_url' => ['nullable', 'max:500'],
             'description' => ['nullable', 'string'],
             'skills' => ['required', 'array'],
             'skills.*' => ['string'],

@@ -15,6 +15,8 @@ class StoreEducationRequest extends FormRequest
     {
         return [
             'institution' => ['required', 'string', 'max:255'],
+            'icon_file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
+            'icon_url' => ['nullable', 'max:500'],
             'major' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'start_year' => ['required', 'integer', 'digits:4'],

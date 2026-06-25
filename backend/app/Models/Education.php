@@ -13,6 +13,7 @@ class Education extends Model
 
     protected $fillable = [
         'institution',
+        'icon',
         'major',
         'description',
         'start_year',
