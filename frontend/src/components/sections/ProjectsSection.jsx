@@ -1,4 +1,6 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
+
+const GAP = 20 // must match .proj-track gap in index.css
 
 const GithubIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" /></svg>
@@ -58,24 +60,52 @@ function ProjectCard({ project }) {
   )
 }
 
-function chunk(arr, size) {
-  const out = []
-  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size))
-  return out
-}
-
 export default function ProjectsSection({ projects }) {
-  const pages = projects ? chunk(projects, 2) : []
-  const pageCount = pages.length
+  const total = projects?.length ?? 0
 
-  const [page, setPage] = useState(0)
+  const [perView, setPerView] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 640px)').matches ? 1 : 2
+  )
+  const [index, setIndex] = useState(0)
+  const [step, setStep] = useState(0)
   const [drag, setDrag] = useState(0)
   const [dragging, setDragging] = useState(false)
+
   const startX = useRef(0)
   const dragRef = useRef(0)
   const viewportRef = useRef(null)
 
-  const clamp = (p) => Math.max(0, Math.min(pageCount - 1, p))
+  const maxIndex = Math.max(0, total - perView)
+  const positions = maxIndex + 1
+  const clamp = (i) => Math.max(0, Math.min(maxIndex, i))
+
+  // Responsive cards-per-view: 1 on mobile, 2 on desktop
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)')
+    const apply = () => setPerView(mq.matches ? 1 : 2)
+    apply()
+    mq.addEventListener('change', apply)
+    return () => mq.removeEventListener('change', apply)
+  }, [])
+
+  // Keep index in range when perView / count changes
+  useEffect(() => {
+    setIndex((i) => Math.min(i, maxIndex))
+  }, [maxIndex])
+
+  // Measure the slide step (card width + gap) so the track can translate in px
+  useEffect(() => {
+    const vp = viewportRef.current
+    if (!vp) return
+    const measure = () => {
+      const slide = vp.querySelector('.proj-slide')
+      if (slide) setStep(slide.offsetWidth + GAP)
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(vp)
+    return () => ro.disconnect()
+  }, [projects, perView])
 
   const onPointerDown = (e) => {
     setDragging(true)
@@ -91,9 +121,8 @@ export default function ProjectsSection({ projects }) {
   }
   const endDrag = () => {
     if (!dragging) return
-    const w = viewportRef.current?.offsetWidth || 1
-    if (Math.abs(dragRef.current) > w * 0.18) {
-      setPage((p) => clamp(p + (dragRef.current < 0 ? 1 : -1)))
+    if (step > 0 && Math.abs(dragRef.current) > step * 0.2) {
+      setIndex((i) => clamp(i + (dragRef.current < 0 ? 1 : -1)))
     }
     setDragging(false)
     setDrag(0)
@@ -127,32 +156,30 @@ export default function ProjectsSection({ projects }) {
             <div
               className="proj-track"
               style={{
-                transform: `translateX(calc(${-page * 100}% + ${drag}px))`,
+                transform: `translateX(${-index * step + drag}px)`,
                 transition: dragging ? 'none' : undefined,
               }}
             >
-              {pages.map((group, gi) => (
-                <div className="proj-page" key={gi}>
-                  {group.map((project) => (
-                    <ProjectCard key={project.id} project={project} />
-                  ))}
+              {projects.map((project) => (
+                <div className="proj-slide" key={project.id}>
+                  <ProjectCard project={project} />
                 </div>
               ))}
             </div>
           </div>
 
-          {pageCount > 1 && (
+          {positions > 1 && (
             <div className="proj-nav">
-              <button className="proj-arrow" onClick={() => setPage((p) => clamp(p - 1))} disabled={page === 0} aria-label="Proyek sebelumnya">
+              <button className="proj-arrow" onClick={() => setIndex((i) => clamp(i - 1))} disabled={index === 0} aria-label="Proyek sebelumnya">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
               </button>
               <div className="proj-dots">
-                {pages.map((_, i) => (
-                  <button key={i} className={`proj-dot${i === page ? ' active' : ''}`} onClick={() => setPage(i)} aria-label={`Halaman ${i + 1}`} />
+                {Array.from({ length: positions }).map((_, i) => (
+                  <button key={i} className={`proj-dot${i === index ? ' active' : ''}`} onClick={() => setIndex(i)} aria-label={`Posisi ${i + 1}`} />
                 ))}
               </div>
-              <span className="proj-counter"><b>{page + 1}</b> / {pageCount}</span>
-              <button className="proj-arrow" onClick={() => setPage((p) => clamp(p + 1))} disabled={page === pageCount - 1} aria-label="Proyek berikutnya">
+              <span className="proj-counter"><b>{index + 1}</b> / {positions}</span>
+              <button className="proj-arrow" onClick={() => setIndex((i) => clamp(i + 1))} disabled={index === maxIndex} aria-label="Proyek berikutnya">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
               </button>
             </div>

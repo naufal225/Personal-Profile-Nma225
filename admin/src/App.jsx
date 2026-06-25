@@ -5,6 +5,8 @@ import useAuthStore from './store/authStore'
 import { useBootstrapAuth } from './hooks/useAuth'
 import { TooltipProvider } from './components/ui/Tooltip'
 import { Toaster } from 'sonner'
+import { getHero } from './api/hero'
+import { setFavicon } from './utils/favicon'
 
 import AdminLayout from './layouts/AdminLayout'
 import LoginPage from './pages/LoginPage'
@@ -69,6 +71,11 @@ function ProtectedRoute({ children }) {
 
 export default function App() {
   useBootstrapAuth()
+
+  // Use the hero photo as the browser-tab favicon (public endpoint, no auth)
+  useEffect(() => {
+    getHero().then((r) => setFavicon(r.data?.data?.photo_path)).catch(() => {})
+  }, [])
 
   useEffect(() => {
     const apply = (theme) => {

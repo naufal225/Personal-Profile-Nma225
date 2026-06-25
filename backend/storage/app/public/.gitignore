@@ -1,2 +1,15 @@
-*
+# Runtime-uploaded files are ignored, but committed seed images (profile photo,
+# skill icons, certificate scan) are tracked so production has them after deploy.
+/*
 !.gitignore
+!/images/
+/images/*
+!/images/skills/
+!/images/photos/
+!/images/certificates/
+/images/skills/*
+/images/photos/*
+/images/certificates/*
+!/images/skills/*.svg
+!/images/photos/profile.jpg
+!/images/certificates/moe-national-2025.jpg

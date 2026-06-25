@@ -82,7 +82,8 @@
 
 /* ---------- Reset / base ---------- */
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+/* Bug 1 & 4: lock the page against horizontal scroll (body already has overflow-x:hidden) */
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; overflow-x: hidden; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
 body {
@@ -215,6 +216,13 @@ img { display: block; max-width: 100%; }
 /* ---------- Hero ---------- */
 .hero { padding-top: 132px; padding-bottom: 88px; position: relative; }
 .hero-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: center; }
+
+@media (max-width: 767px) {
+  .hero-grid {
+    margin-top: 100px;
+  }
+}
+
 .badge-status {
   display: inline-flex; align-items: center; gap: 9px; font-size: 12.5px; font-weight: 600;
   color: var(--text); padding: 7px 13px 7px 11px; border-radius: 999px;
@@ -349,6 +357,15 @@ img { display: block; max-width: 100%; }
 .cert-meta .yr { font-family: var(--font-mono); }
 .cert-medal { color: var(--accent); flex-shrink: 0; }
 .cert-cred { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--accent); margin-top: 2px; }
+.cert-card.clickable { cursor: pointer; }
+.cert-view { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--accent); margin-top: 2px; }
+
+/* Certificate image lightbox */
+.cert-lightbox { position: fixed; inset: 0; z-index: 200; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: grid; place-items: center; padding: 32px; cursor: zoom-out; animation: lb-fade 0.2s var(--ease); }
+.cert-lightbox img { max-width: min(960px, 92vw); max-height: 88vh; border-radius: 12px; box-shadow: var(--shadow-lg); cursor: default; }
+.cert-lightbox-close { position: fixed; top: 20px; right: 24px; width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.08); color: #fff; cursor: pointer; display: grid; place-items: center; transition: background 0.2s; }
+.cert-lightbox-close:hover { background: rgba(255, 255, 255, 0.18); }
+@keyframes lb-fade { from { opacity: 0; } to { opacity: 1; } }
 
 /* ---------- Services ---------- */
 .svc-tabs { display: inline-flex; gap: 4px; padding: 5px; border-radius: 999px; background: var(--panel); border: 1px solid var(--border-strong); margin-bottom: 40px; }
@@ -371,6 +388,8 @@ img { display: block; max-width: 100%; }
 
 /* ---------- Contact ---------- */
 .contact-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+/* A trailing odd card fills the row instead of leaving an empty half */
+.contact-wrap > :last-child:nth-child(odd) { grid-column: 1 / -1; }
 .contact-card { padding: 22px; display: flex; align-items: center; gap: 16px; }
 .contact-card:hover { transform: translateY(-2px); border-color: var(--accent-line); background: var(--panel-2); box-shadow: var(--shadow-md); }
 .contact-ic { width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; background: var(--panel-2); border: 1px solid var(--border); color: var(--accent); flex-shrink: 0; transition: all 0.25s; }
@@ -434,10 +453,10 @@ img { display: block; max-width: 100%; }
 .proj-carousel { position: relative; }
 .proj-viewport { overflow: hidden; overflow: clip; overflow-clip-margin: 30px; border-radius: var(--radius); touch-action: pan-y; cursor: grab; }
 .proj-viewport.grabbing { cursor: grabbing; }
-.proj-track { display: flex; transition: transform 0.55s var(--ease); will-change: transform; user-select: none; }
-.proj-page { flex: 0 0 100%; min-width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 4px; }
-.proj-page .project-card { height: 100%; }
-.proj-page .project-card.wide { grid-column: 1 / -1; }
+.proj-track { display: flex; gap: 20px; padding: 4px; transition: transform 0.55s var(--ease); will-change: transform; user-select: none; }
+.proj-slide { flex: 0 0 100%; min-width: 0; } /* mobile: 1 card per view */
+.proj-slide .project-card { height: 100%; }
+@media (min-width: 641px) { .proj-slide { flex: 0 0 calc((100% - 20px) / 2); } } /* desktop: 2 per view */
 .proj-nav { display: flex; align-items: center; justify-content: center; gap: 22px; margin-top: 32px; }
 .proj-arrow { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--panel); border: 1px solid var(--border-strong); color: var(--text); cursor: pointer; transition: all 0.22s var(--ease); }
 .proj-arrow:hover:not(:disabled) { border-color: var(--accent-line); color: var(--accent); transform: scale(1.08); box-shadow: var(--shadow-md); }
@@ -471,9 +490,25 @@ img { display: block; max-width: 100%; }
   .footer-grid { grid-template-columns: 1fr; gap: 32px; }
 }
 @media (max-width: 640px) {
-  .skills-grid, .projects-grid, .tiers, .contact-wrap, .cert-grid, .proj-page { grid-template-columns: 1fr; }
+  .skills-grid, .projects-grid, .tiers, .contact-wrap, .cert-grid { grid-template-columns: 1fr; }
+  .sec-head { margin-bottom: 36px; }
+  .hero { padding-top: 104px; padding-bottom: 64px; }
+  .hero-desc { font-size: 16px; }
   .hero-cta { width: 100%; }
   .hero-cta .btn { flex: 1; justify-content: center; }
+  .hero-stats { gap: 18px; margin-top: 32px; }
   .nav-cta-label { display: none; }
   .stat-div { display: none; }
+  .project-body { padding: 18px; }
+  .project-actions { gap: 10px; }
+  .project-btn { flex: 1; justify-content: center; }
+  .tier { padding: 24px 20px; }
+  .cert-lightbox { padding: 16px; }
+  .cert-lightbox-close { top: 12px; right: 14px; }
+}
+@media (max-width: 480px) {
+  .container { padding: 0 18px; }
+  .section { padding: 56px 0; }
+  .hero-stats { gap: 14px; }
+  .stat .k { font-size: 23px; }
 }

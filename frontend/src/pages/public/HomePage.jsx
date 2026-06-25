@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { usePortfolioData } from '../../hooks/usePortfolioData'
+import { setFavicon } from '../../utils/favicon'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import HeroSection from '../../components/sections/HeroSection'
@@ -22,6 +23,11 @@ export default function HomePage() {
     contacts,
     error,
   } = usePortfolioData()
+
+  // Use the hero photo as the browser-tab favicon
+  useEffect(() => {
+    if (hero?.photo_path) setFavicon(hero.photo_path)
+  }, [hero])
 
   // Reveal-on-scroll: (re)observe whenever content appears
   useEffect(() => {
@@ -63,7 +69,7 @@ export default function HomePage() {
 
       <Navbar />
 
-      <main id="top">
+      <main id="top" className='p-2'>
         <HeroSection hero={hero} />
         <SkillsSection skills={skills} />
         <ProjectsSection projects={projects} />

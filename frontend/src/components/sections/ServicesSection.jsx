@@ -42,7 +42,7 @@ export default function ServicesSection({ services }) {
     <section id="services" className="container section">
       <div className="sec-head reveal">
         <div className="sec-eyebrow"><span className="bar" /><span className="num">05</span> SERVICES</div>
-        <h2 className="sec-title">Paket website siap pakai</h2>
+        <h2 className="sec-title">Paket pembuatan website</h2>
         <p className="sec-sub">Harga jelas dan transparan untuk bisnis Anda. Pilih kategori dan paket yang sesuai kebutuhan.</p>
       </div>
 

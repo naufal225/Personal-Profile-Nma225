@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
+import { useForm, useController } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { Award } from 'lucide-react'
-import { adminGetCertificate, adminUpdateCertificate } from '../../api/certificates'
-import { FormShell, FormCard, FormSection } from '../../components/ui/Form'
+import { adminGetCertificate, adminUpdateCertificateWithFile } from '../../api/certificates'
+import { FormShell, FormCard, FormSection, AsideCard } from '../../components/ui/Form'
 import FormField, { inputCls } from '../../components/ui/FormField'
+import ImageUpload from '../../components/ui/ImageUpload'
 
 const schema = z.object({
   title: z.string().min(1, 'Judul wajib diisi'),
@@ -15,6 +16,7 @@ const schema = z.object({
   year: z.coerce.number().int().min(1900).max(2100),
   type: z.enum(['training', 'achievement', 'competition']),
   credential_url: z.string().optional().default(''),
+  image: z.any().optional(),
 })
 
 export default function CertificateEdit() {
@@ -22,9 +24,11 @@ export default function CertificateEdit() {
   const navigate = useNavigate()
   const [fetching, setFetching] = useState(true)
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting, isDirty } } = useForm({
+  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting, isDirty } } = useForm({
     resolver: zodResolver(schema),
+    defaultValues: { image: null },
   })
+  const { field: imageField } = useController({ name: 'image', control, defaultValue: null })
 
   useEffect(() => {
     adminGetCertificate(id)
@@ -36,6 +40,7 @@ export default function CertificateEdit() {
           year: d.year ?? new Date().getFullYear(),
           type: d.type ?? 'training',
           credential_url: d.credential_url ?? '',
+          image: d.image_path ? { mode: 'url', url: d.image_path } : null,
         })
       })
       .catch(() => toast.error('Gagal memuat sertifikat'))
@@ -44,13 +49,16 @@ export default function CertificateEdit() {
 
   const onSubmit = async (data) => {
     try {
-      await adminUpdateCertificate(id, {
-        title: data.title,
-        issuer: data.issuer,
-        year: Number(data.year),
-        type: data.type,
-        credential_url: data.credential_url || null,
-      })
+      const fd = new FormData()
+      fd.append('title', data.title)
+      fd.append('issuer', data.issuer)
+      fd.append('year', data.year)
+      fd.append('type', data.type)
+      if (data.credential_url) fd.append('credential_url', data.credential_url)
+      if (data.image?.mode === 'file') fd.append('image_file', data.image.file)
+      else if (data.image?.mode === 'url') fd.append('image_url', data.image.url)
+
+      await adminUpdateCertificateWithFile(id, fd)
       toast.success('Sertifikat diperbarui')
       navigate(`/certificates/${id}`)
     } catch (e) {
@@ -71,6 +79,11 @@ export default function CertificateEdit() {
       submitting={isSubmitting}
       submitLabel="Simpan Perubahan"
       dirty={isDirty}
+      aside={
+        <AsideCard title="Gambar Sertifikat">
+          <ImageUpload value={imageField.value} onChange={imageField.onChange} />
+        </AsideCard>
+      }
     >
       <FormCard>
         <FormSection icon={Award} title="Detail Sertifikat">

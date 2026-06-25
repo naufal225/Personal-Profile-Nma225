@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { Award, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
 import { adminGetCertificate, adminDeleteCertificate } from '../../api/certificates'
-import { FormCard, FormSection } from '../../components/ui/Form'
+import { FormCard, FormSection, AsideCard } from '../../components/ui/Form'
 import { DetailShell, MetaRow, DetailBlock, DetailLoading, DetailNotFound } from '../../components/ui/Detail'
 
 export default function CertificateShow() {
@@ -30,6 +30,15 @@ export default function CertificateShow() {
       redirectTo="/certificates"
       deleteTitle="Hapus sertifikat?"
       deleteDescription={`"${item.title}" akan dihapus secara permanen.`}
+      aside={
+        item.image_path ? (
+          <AsideCard title="Gambar Sertifikat">
+            <a className="detail-thumb" href={item.image_path} target="_blank" rel="noopener noreferrer" title="Buka gambar penuh">
+              <img src={item.image_path} alt={item.title} />
+            </a>
+          </AsideCard>
+        ) : null
+      }
     >
       <FormCard>
         <FormSection icon={Award} title="Detail Sertifikat" plain>

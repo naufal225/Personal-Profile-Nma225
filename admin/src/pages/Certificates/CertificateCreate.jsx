@@ -1,12 +1,13 @@
 import { useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
+import { useForm, useController } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { Award } from 'lucide-react'
-import { adminCreateCertificate } from '../../api/certificates'
-import { FormShell, FormCard, FormSection } from '../../components/ui/Form'
+import { adminCreateCertificateWithFile } from '../../api/certificates'
+import { FormShell, FormCard, FormSection, AsideCard } from '../../components/ui/Form'
 import FormField, { inputCls } from '../../components/ui/FormField'
+import ImageUpload from '../../components/ui/ImageUpload'
 
 const schema = z.object({
   title: z.string().min(1, 'Judul wajib diisi'),
@@ -14,24 +15,29 @@ const schema = z.object({
   year: z.coerce.number().int().min(1900).max(2100),
   type: z.enum(['training', 'achievement', 'competition']),
   credential_url: z.string().optional().default(''),
+  image: z.any().optional(),
 })
 
 export default function CertificateCreate() {
   const navigate = useNavigate()
-  const { register, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm({
+  const { register, handleSubmit, control, formState: { errors, isSubmitting, isDirty } } = useForm({
     resolver: zodResolver(schema),
-    defaultValues: { title: '', issuer: '', year: new Date().getFullYear(), type: 'training', credential_url: '' },
+    defaultValues: { title: '', issuer: '', year: new Date().getFullYear(), type: 'training', credential_url: '', image: null },
   })
+  const { field: imageField } = useController({ name: 'image', control })
 
   const onSubmit = async (data) => {
     try {
-      const res = await adminCreateCertificate({
-        title: data.title,
-        issuer: data.issuer,
-        year: Number(data.year),
-        type: data.type,
-        credential_url: data.credential_url || null,
-      })
+      const fd = new FormData()
+      fd.append('title', data.title)
+      fd.append('issuer', data.issuer)
+      fd.append('year', data.year)
+      fd.append('type', data.type)
+      if (data.credential_url) fd.append('credential_url', data.credential_url)
+      if (data.image?.mode === 'file') fd.append('image_file', data.image.file)
+      else if (data.image?.mode === 'url') fd.append('image_url', data.image.url)
+
+      const res = await adminCreateCertificateWithFile(fd)
       toast.success('Sertifikat dibuat')
       navigate(`/certificates/${res.data.data.id}`)
     } catch (e) {
@@ -49,6 +55,11 @@ export default function CertificateCreate() {
       submitting={isSubmitting}
       submitLabel="Buat Sertifikat"
       dirty={isDirty}
+      aside={
+        <AsideCard title="Gambar Sertifikat">
+          <ImageUpload value={imageField.value} onChange={imageField.onChange} />
+        </AsideCard>
+      }
     >
       <FormCard>
         <FormSection icon={Award} title="Detail Sertifikat">
@@ -68,7 +79,7 @@ export default function CertificateCreate() {
               <option value="competition">Kompetisi</option>
             </select>
           </FormField>
-          <FormField className="full" label="URL Kredensial" error={errors.credential_url?.message} description="Tautan publik untuk verifikasi.">
+          <FormField className="full" label="URL Kredensial" error={errors.credential_url?.message} description="Tautan publik untuk verifikasi (opsional).">
             <input {...register('credential_url')} type="url" className={inputCls} placeholder="https://..." />
           </FormField>
         </FormSection>

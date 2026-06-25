@@ -8,3 +8,11 @@ export const adminDeleteCertificate = (id) => apiClient.delete(`/admin/certifica
 
 export const adminGetCertificate = (id) => apiClient.get(`/admin/certificates/${id}`)
 export const adminReorderCertificates = (items) => apiClient.post('/admin/certificates/reorder', { items })
+
+export const adminCreateCertificateWithFile = (formData) =>
+  apiClient.post('/admin/certificates', formData)
+
+export const adminUpdateCertificateWithFile = (id, formData) => {
+  formData.append('_method', 'PUT')
+  return apiClient.post(`/admin/certificates/${id}`, formData)
+}

@@ -19,6 +19,8 @@ class UpdateCertificateRequest extends FormRequest
             'year' => ['required', 'integer', 'digits:4'],
             'type' => ['required', 'string', 'in:training,achievement,competition'],
             'credential_url' => ['nullable', 'url', 'max:500'],
+            'image_file' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'image_url' => ['nullable', 'max:500'],
         ];
     }
 }
