@@ -23,7 +23,6 @@ class DatabaseSeeder extends Seeder
             'available_for_work' => true,
             // Committed profile photo (storage/app/public/images/photos); URL built from APP_URL.
             'photo_path' => Storage::disk('public')->url('images/photos/profile.jpg'),
-            'resume_url' => null,
         ]);
 
         $this->call([

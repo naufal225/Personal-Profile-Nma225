@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react'
 
 const FILTERS = [
-  { key: 'all', label: 'Semua' },
-  { key: 'competition', label: 'Kompetisi' },
-  { key: 'training', label: 'Pelatihan' },
+  { key: 'all', label: 'All' },
+  { key: 'competition', label: 'Competition' },
+  { key: 'training', label: 'Training' },
 ]
 
 const TYPE_LABEL = {
-  competition: 'Kompetisi',
-  training: 'Pelatihan',
-  achievement: 'Prestasi',
+  competition: 'Competition',
+  training: 'Training',
+  achievement: 'Achievement',
 }
 
 const MedalIcon = () => (
@@ -32,8 +32,8 @@ export default function CertificatesSection({ certificates }) {
     <section id="certificates" className="container section">
       <div className="sec-head reveal">
         <div className="sec-eyebrow"><span className="bar" /><span className="num">04</span> CERTIFICATES</div>
-        <h2 className="sec-title">Prestasi &amp; sertifikasi</h2>
-        <p className="sec-sub">Kompetisi, pelatihan, dan sertifikasi yang telah saya selesaikan.</p>
+        <h2 className="sec-title">Achievements &amp; certifications</h2>
+        <p className="sec-sub">Competitions, training, and certifications I've completed.</p>
       </div>
 
       <div className="cert-filter reveal">
@@ -75,13 +75,13 @@ export default function CertificatesSection({ certificates }) {
                 <p className="cert-meta">{cert.issuer} · <span className="yr">{cert.year}</span></p>
                 {cert.credential_url && (
                   <a className="cert-cred" href={cert.credential_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                    Lihat kredensial
+                    View credential
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
                   </a>
                 )}
                 {hasImage && (
                   <span className="cert-view">
-                    Lihat sertifikat
+                    View certificate
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /></svg>
                   </span>
                 )}
@@ -93,10 +93,10 @@ export default function CertificatesSection({ certificates }) {
 
       {lightbox && (
         <div className="cert-lightbox" onClick={() => setLightbox(null)}>
-          <button className="cert-lightbox-close" onClick={() => setLightbox(null)} aria-label="Tutup">
+          <button className="cert-lightbox-close" onClick={() => setLightbox(null)} aria-label="Close">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
           </button>
-          <img src={lightbox} alt="Sertifikat" onClick={(e) => e.stopPropagation()} />
+          <img src={lightbox} alt="Certificate" onClick={(e) => e.stopPropagation()} />
         </div>
       )}
     </section>

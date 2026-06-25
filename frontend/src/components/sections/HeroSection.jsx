@@ -6,7 +6,7 @@ export default function HeroSection({ hero }) {
           {hero?.available_for_work !== false && (
             <span className="badge-status">
               <span className="pulse"><span /><span /></span>
-              Tersedia untuk proyek baru
+              Available for new projects
             </span>
           )}
 
@@ -20,30 +20,25 @@ export default function HeroSection({ hero }) {
 
           <p className="hero-desc">
             {hero?.subheadline ||
-              'Saya merancang dan membangun sistem web yang skalabel dengan fokus kuat pada arsitektur backend, performa, dan kemudahan perawatan.'}
+              'I design and build scalable web systems with a strong focus on backend architecture, performance, and maintainability.'}
           </p>
 
           <div className="hero-cta">
-            <a
-              className="btn btn-primary btn-lg"
-              href={hero?.resume_url || '#'}
-              {...(hero?.resume_url ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
-              Download Resume
-            </a>
-            <a className="btn btn-ghost btn-lg" href="#contact">
-              Mari bicara
+            <a className="btn btn-primary btn-lg" href="#contact">
+              Let&apos;s talk
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+            </a>
+            <a className="btn btn-ghost btn-lg" href="#projects">
+              View Projects
             </a>
           </div>
 
           <div className="hero-stats">
-            <div className="stat"><div className="k">5<span className="accent">+</span></div><div className="l">Proyek dikerjakan</div></div>
+            <div className="stat"><div className="k">5<span className="accent">+</span></div><div className="l">Projects delivered</div></div>
             <div className="stat-div" />
-            <div className="stat"><div className="k">Top <span className="accent">6</span></div><div className="l">LKS IT Nasional &apos;25</div></div>
+            <div className="stat"><div className="k">Top <span className="accent">6</span></div><div className="l">National LKS IT &apos;25</div></div>
             <div className="stat-div" />
-            <div className="stat"><div className="k">12<span className="accent">+</span></div><div className="l">Sertifikat &amp; lomba</div></div>
+            <div className="stat"><div className="k">12<span className="accent">+</span></div><div className="l">Certificates &amp; competitions</div></div>
           </div>
         </div>
 

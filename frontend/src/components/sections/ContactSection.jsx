@@ -24,8 +24,8 @@ export default function ContactSection({ contacts }) {
     <section id="contact" className="container section">
       <div className="sec-head reveal">
         <div className="sec-eyebrow"><span className="bar" /><span className="num">06</span> CONTACT</div>
-        <h2 className="sec-title">Mari bekerja sama</h2>
-        <p className="sec-sub">Terbuka untuk proyek freelance, kolaborasi, dan peluang full-time.</p>
+        <h2 className="sec-title">Let's work together</h2>
+        <p className="sec-sub">Open to freelance projects, collaborations, and full-time opportunities.</p>
       </div>
 
       {!contacts ? (

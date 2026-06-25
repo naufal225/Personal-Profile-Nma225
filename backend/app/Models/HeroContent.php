@@ -11,7 +11,6 @@ class HeroContent extends Model
         'subheadline',
         'photo_path',
         'available_for_work',
-        'resume_url',
     ];
 
     protected $casts = [

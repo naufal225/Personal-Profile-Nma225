@@ -9,7 +9,7 @@ const CheckIcon = () => (
 function TierCard({ tier }) {
   return (
     <div className={`tier panel${tier.recommended ? ' recommended' : ''}`}>
-      {tier.recommended && <span className="tier-badge">★ Rekomendasi</span>}
+      {tier.recommended && <span className="tier-badge">★ Recommended</span>}
       <div className="tier-name">{tier.name}</div>
       <div className="tier-price">{tier.price}</div>
       <div className="tier-rule" />
@@ -25,7 +25,7 @@ function TierCard({ tier }) {
         })}
       </ul>
       <a className={`btn ${tier.recommended ? 'btn-primary' : 'btn-ghost'} tier-cta`} href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
-        Hubungi via WhatsApp
+        Contact via WhatsApp
       </a>
       {tier.note && <p className="tier-note">{tier.note}</p>}
     </div>
@@ -42,8 +42,8 @@ export default function ServicesSection({ services }) {
     <section id="services" className="container section">
       <div className="sec-head reveal">
         <div className="sec-eyebrow"><span className="bar" /><span className="num">05</span> SERVICES</div>
-        <h2 className="sec-title">Paket pembuatan website</h2>
-        <p className="sec-sub">Harga jelas dan transparan untuk bisnis Anda. Pilih kategori dan paket yang sesuai kebutuhan.</p>
+        <h2 className="sec-title">Website packages</h2>
+        <p className="sec-sub">Clear, transparent pricing for your business. Pick the category and package that fits your needs.</p>
       </div>
 
       {!services ? (

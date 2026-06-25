@@ -17,7 +17,6 @@ class UpdateHeroRequest extends FormRequest
             'headline'         => ['required', 'string', 'max:255'],
             'subheadline'      => ['required', 'string'],
             'available_for_work' => ['required', 'boolean'],
-            'resume_url'       => ['nullable', 'url', 'max:255'],
             'photo_file'       => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'photo_url'        => ['nullable', 'max:500'],
         ];

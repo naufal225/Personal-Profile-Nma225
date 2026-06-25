@@ -45,12 +45,12 @@ function ProjectCard({ project }) {
           <div className="project-actions" onPointerDown={(e) => e.stopPropagation()}>
             {project.demo_url && (
               <a className="project-btn primary" href={project.demo_url} target="_blank" rel="noopener noreferrer">
-                <DemoIcon /> Lihat Demo
+                <DemoIcon /> Live Demo
               </a>
             )}
             {project.github_url && (
               <a className="project-btn" href={project.github_url} target="_blank" rel="noopener noreferrer">
-                <GithubIcon /> Repo GitHub
+                <GithubIcon /> GitHub Repo
               </a>
             )}
           </div>
@@ -132,8 +132,8 @@ export default function ProjectsSection({ projects }) {
     <section id="projects" className="container section">
       <div className="sec-head reveal">
         <div className="sec-eyebrow"><span className="bar" /><span className="num">02</span> PROJECTS</div>
-        <h2 className="sec-title">Karya pilihan</h2>
-        <p className="sec-sub">Beberapa pekerjaan terbaru — dari aplikasi full-stack hingga sistem internal.</p>
+        <h2 className="sec-title">Selected work</h2>
+        <p className="sec-sub">A few recent projects — from full-stack apps to internal systems.</p>
       </div>
 
       {!projects ? (
@@ -170,16 +170,16 @@ export default function ProjectsSection({ projects }) {
 
           {positions > 1 && (
             <div className="proj-nav">
-              <button className="proj-arrow" onClick={() => setIndex((i) => clamp(i - 1))} disabled={index === 0} aria-label="Proyek sebelumnya">
+              <button className="proj-arrow" onClick={() => setIndex((i) => clamp(i - 1))} disabled={index === 0} aria-label="Previous projects">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
               </button>
               <div className="proj-dots">
                 {Array.from({ length: positions }).map((_, i) => (
-                  <button key={i} className={`proj-dot${i === index ? ' active' : ''}`} onClick={() => setIndex(i)} aria-label={`Posisi ${i + 1}`} />
+                  <button key={i} className={`proj-dot${i === index ? ' active' : ''}`} onClick={() => setIndex(i)} aria-label={`Position ${i + 1}`} />
                 ))}
               </div>
               <span className="proj-counter"><b>{index + 1}</b> / {positions}</span>
-              <button className="proj-arrow" onClick={() => setIndex((i) => clamp(i + 1))} disabled={index === maxIndex} aria-label="Proyek berikutnya">
+              <button className="proj-arrow" onClick={() => setIndex((i) => clamp(i + 1))} disabled={index === maxIndex} aria-label="Next projects">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
               </button>
             </div>

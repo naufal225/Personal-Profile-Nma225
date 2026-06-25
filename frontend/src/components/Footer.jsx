@@ -20,12 +20,12 @@ export default function Footer() {
               <span>Naufal<span className="brand-dot">.</span></span>
             </a>
             <p className="footer-bio">
-              Full-stack Web Developer yang fokus membangun aplikasi berperforma tinggi, elegan, dan mudah dirawat menggunakan Laravel &amp; React.
+              Full-stack Web Developer focused on building high-performance, elegant, and maintainable applications with Laravel &amp; React.
             </p>
           </div>
 
           <div>
-            <h4 className="footer-h">Navigasi</h4>
+            <h4 className="footer-h">Navigation</h4>
             <div className="footer-links">
               {NAV.map((n) => (
                 <a key={n.id} href={`#${n.id}`}>{n.label}</a>
@@ -50,7 +50,7 @@ export default function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>© {year} <span style={{ color: 'var(--text-2)' }}>Naufal Ma&apos;ruf Ashrori</span>. Dibuat dengan Laravel &amp; React.</p>
+          <p>© {year} <span style={{ color: 'var(--text-2)' }}>Naufal Ma&apos;ruf Ashrori</span>. Built with Laravel &amp; React.</p>
           <p className="mono">Designed &amp; coded with care.</p>
         </div>
       </div>

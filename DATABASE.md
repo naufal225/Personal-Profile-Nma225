@@ -16,7 +16,6 @@ Single-row table. Always seed one record. Never allow delete from admin.
 | subheadline | text | short bio paragraph |
 | photo_path | varchar(255) | nullable, stored on local `public` disk |
 | available_for_work | boolean | default true — controls "Available" badge |
-| resume_url | varchar(255) | nullable, link to CV file |
 | created_at | timestamp | |
 | updated_at | timestamp | |
 

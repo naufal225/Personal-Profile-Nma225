@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { usePortfolioData } from '../../hooks/usePortfolioData'
 import { setFavicon } from '../../utils/favicon'
+import { applySeo } from '../../utils/seo'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import HeroSection from '../../components/sections/HeroSection'
@@ -29,6 +30,18 @@ export default function HomePage() {
     if (hero?.photo_path) setFavicon(hero.photo_path)
   }, [hero])
 
+  // SEO / Open Graph tags, built from hero data (with static fallbacks)
+  useEffect(() => {
+    const name = "Naufal Ma'ruf Ashrori"
+    applySeo({
+      title: hero?.headline ? `${name} — ${hero.headline}` : `${name} — Full-Stack Developer`,
+      description:
+        hero?.subheadline ||
+        'Backend-focused full-stack developer building scalable, fast, and maintainable web systems with Laravel, React, and Go.',
+      image: hero?.photo_path,
+    })
+  }, [hero])
+
   // Reveal-on-scroll: (re)observe whenever content appears
   useEffect(() => {
     const els = document.querySelectorAll('.reveal:not(.in)')
@@ -51,8 +64,8 @@ export default function HomePage() {
     return (
       <div className="api-error">
         <div>
-          <h2>Gagal memuat data portfolio</h2>
-          <p>Pastikan server API sedang berjalan, lalu muat ulang halaman.</p>
+          <h2>Failed to load portfolio data</h2>
+          <p>Make sure the API server is running, then reload the page.</p>
         </div>
       </div>
     )
@@ -69,7 +82,7 @@ export default function HomePage() {
 
       <Navbar />
 
-      <main id="top" className='p-2'>
+      <main id="top">
         <HeroSection hero={hero} />
         <SkillsSection skills={skills} />
         <ProjectsSection projects={projects} />

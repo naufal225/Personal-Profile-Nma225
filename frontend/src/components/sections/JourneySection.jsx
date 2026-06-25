@@ -22,8 +22,8 @@ export default function JourneySection({ experiences, educations }) {
     <section id="journey" className="container section">
       <div className="sec-head reveal">
         <div className="sec-eyebrow"><span className="bar" /><span className="num">03</span> JOURNEY</div>
-        <h2 className="sec-title">Perjalanan saya</h2>
-        <p className="sec-sub">Pengalaman kerja dan pendidikan — tempat saya tumbuh dan belajar.</p>
+        <h2 className="sec-title">My journey</h2>
+        <p className="sec-sub">Work experience and education — where I've grown and learned.</p>
       </div>
 
       <div className="journey-grid">
