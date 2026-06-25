@@ -22,7 +22,20 @@ trait HandlesImageUpload
     {
         $ext = strtolower($file->extension() ?: $file->getClientOriginalExtension() ?: 'bin');
         $name = sprintf('%s_%s_%s.%s', $prefix, now()->format('Ymd_His'), Str::random(10), $ext);
+
         $path = $file->storeAs("images/{$folder}", $name, 'public');
+
+        // The 'public' disk is configured with throw => false, so a failed write
+        // returns false instead of throwing. Surface it as a real error rather
+        // than silently "succeeding" with no file on disk (common on a VPS when
+        // storage/app/public is not writable by the web-server user).
+        if ($path === false) {
+            throw new \RuntimeException(
+                "Failed to store the uploaded image on the 'public' disk (images/{$folder}). ".
+                'Make sure storage/app/public exists and is writable by the web-server user, '.
+                "and that 'php artisan storage:link' has been run."
+            );
+        }
 
         return Storage::disk('public')->url($path);
     }
