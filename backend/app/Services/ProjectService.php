@@ -4,12 +4,14 @@ namespace App\Services;
 
 use App\Models\Project;
 use App\Repositories\ProjectRepository;
+use App\Services\Concerns\HandlesImageUpload;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 class ProjectService
 {
+    use HandlesImageUpload;
+
     public function __construct(private ProjectRepository $repository) {}
 
     public function getAll(): Collection
@@ -38,7 +40,7 @@ class ProjectService
     public function delete(int $id): void
     {
         $project = $this->repository->find($id);
-        $this->deleteLocalFile($project->thumbnail_path);
+        $this->deleteImage($project->thumbnail_path);
         $this->repository->delete($id);
     }
 
@@ -54,25 +56,13 @@ class ProjectService
         $pathKey = "{$prefix}_path";
 
         if (!empty($data[$fileKey]) && $data[$fileKey] instanceof UploadedFile) {
-            $this->deleteLocalFile($oldPath);
-            $path = $data[$fileKey]->store("images/{$prefix}s", 'public');
-            $data[$pathKey] = Storage::disk('public')->url($path);
+            $this->deleteImage($oldPath);
+            $data[$pathKey] = $this->storeImage($data[$fileKey], "{$prefix}s", $prefix);
         } elseif (isset($data[$urlKey]) && $data[$urlKey] !== '') {
             $data[$pathKey] = $data[$urlKey];
         }
 
         unset($data[$fileKey], $data[$urlKey]);
         return $data;
-    }
-
-    private function deleteLocalFile(?string $fullUrl): void
-    {
-        if (!$fullUrl) return;
-        $appUrl = rtrim(config('app.url'), '/');
-        $storagePrefix = $appUrl . '/storage/';
-        if (str_starts_with($fullUrl, $storagePrefix)) {
-            $relative = substr($fullUrl, strlen($storagePrefix));
-            Storage::disk('public')->delete($relative);
-        }
     }
 }

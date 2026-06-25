@@ -4,12 +4,14 @@ namespace App\Services;
 
 use App\Models\Certificate;
 use App\Repositories\CertificateRepository;
+use App\Services\Concerns\HandlesImageUpload;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 class CertificateService
 {
+    use HandlesImageUpload;
+
     public function __construct(private CertificateRepository $repository) {}
 
     public function getAll(): Collection
@@ -33,7 +35,7 @@ class CertificateService
     public function delete(int $id): void
     {
         $certificate = $this->repository->find($id);
-        $this->deleteLocalFile($certificate->image_path);
+        $this->deleteImage($certificate->image_path);
         $this->repository->delete($id);
     }
 
@@ -50,25 +52,13 @@ class CertificateService
     private function resolveImagePath(array $data, ?string $oldPath = null): array
     {
         if (!empty($data['image_file']) && $data['image_file'] instanceof UploadedFile) {
-            $this->deleteLocalFile($oldPath);
-            $path = $data['image_file']->store('images/certificates', 'public');
-            $data['image_path'] = Storage::disk('public')->url($path);
+            $this->deleteImage($oldPath);
+            $data['image_path'] = $this->storeImage($data['image_file'], 'certificates', 'certificate');
         } elseif (isset($data['image_url']) && $data['image_url'] !== '') {
             $data['image_path'] = $data['image_url'];
         }
 
         unset($data['image_file'], $data['image_url']);
         return $data;
-    }
-
-    private function deleteLocalFile(?string $fullUrl): void
-    {
-        if (!$fullUrl) return;
-        $appUrl = rtrim(config('app.url'), '/');
-        $storagePrefix = $appUrl . '/storage/';
-        if (str_starts_with($fullUrl, $storagePrefix)) {
-            $relative = substr($fullUrl, strlen($storagePrefix));
-            Storage::disk('public')->delete($relative);
-        }
     }
 }
