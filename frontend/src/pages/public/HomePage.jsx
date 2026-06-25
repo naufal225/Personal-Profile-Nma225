@@ -82,7 +82,7 @@ export default function HomePage() {
 
       <Navbar />
 
-      <main id="top">
+      <main id="top" className='p-1'>
         <HeroSection hero={hero} />
         <SkillsSection skills={skills} />
         <ProjectsSection projects={projects} />
