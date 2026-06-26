@@ -55,7 +55,7 @@ export default function CertificatesSection({ certificates }) {
           ))}
         </div>
       ) : (
-        <div className="cert-grid">
+        <div className="cert-grid reveal">
           {certificates.map((cert) => {
             const hidden = filter !== 'all' && cert.type !== filter
             const showMedal = cert.type === 'competition' || cert.type === 'achievement'
@@ -63,7 +63,7 @@ export default function CertificatesSection({ certificates }) {
             return (
               <article
                 key={cert.id}
-                className={`cert-card panel reveal${hidden ? ' hidden' : ''}${hasImage ? ' clickable' : ''}`}
+                className={`cert-card panel${hidden ? ' hidden' : ''}${hasImage ? ' clickable' : ''}`}
                 data-type={cert.type}
                 onClick={hasImage ? () => setLightbox(cert.image_path) : undefined}
               >
