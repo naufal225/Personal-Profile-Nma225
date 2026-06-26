@@ -1,5 +1,6 @@
 import {
   LayoutDashboard,
+  LayoutTemplate,
   Sparkles,
   Code2,
   Folder,
@@ -12,6 +13,7 @@ import {
 
 export const adminRoutes = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, group: null },
+  { path: '/sections', label: 'Sections', icon: LayoutTemplate, group: null },
 
   { path: '/hero', label: 'Hero', icon: Sparkles, group: 'Content' },
   { path: '/skills', label: 'Skills', icon: Code2, group: 'Content' },

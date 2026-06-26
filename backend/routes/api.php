@@ -6,12 +6,14 @@ use App\Http\Controllers\Api\EducationController;
 use App\Http\Controllers\Api\ExperienceController;
 use App\Http\Controllers\Api\HeroController;
 use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\SectionController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\SkillController;
 use App\Http\Controllers\Api\Admin\AuthController;
 use App\Http\Controllers\Api\Admin\HeroController as AdminHeroController;
 use App\Http\Controllers\Api\Admin\SkillController as AdminSkillController;
 use App\Http\Controllers\Api\Admin\ProjectController as AdminProjectController;
+use App\Http\Controllers\Api\Admin\SectionController as AdminSectionController;
 use App\Http\Controllers\Api\Admin\ExperienceController as AdminExperienceController;
 use App\Http\Controllers\Api\Admin\EducationController as AdminEducationController;
 use App\Http\Controllers\Api\Admin\CertificateController as AdminCertificateController;
@@ -29,6 +31,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // Public endpoints
+    Route::get('/sections', [SectionController::class, 'index']);
     Route::get('/hero', [HeroController::class, 'index']);
     Route::get('/skills', [SkillController::class, 'index']);
     Route::get('/projects', [ProjectController::class, 'index']);
@@ -40,6 +43,10 @@ Route::prefix('v1')->group(function () {
 
     // Admin endpoints (protected)
     Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+
+        // Sections (fixed rows — toggle visibility only)
+        Route::get('/sections', [AdminSectionController::class, 'index']);
+        Route::put('/sections/{id}', [AdminSectionController::class, 'update']);
 
         // Hero (single record)
         Route::get('/hero', [AdminHeroController::class, 'show']);

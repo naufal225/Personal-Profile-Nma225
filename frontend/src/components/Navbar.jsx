@@ -11,13 +11,17 @@ const SECTIONS = [
   { id: 'contact', label: 'Contact' },
 ]
 
-export default function Navbar() {
+export default function Navbar({ activeKeys }) {
   const theme = useThemeStore((s) => s.theme)
   const toggleTheme = useThemeStore((s) => s.toggleTheme)
 
   const [active, setActive] = useState('about')
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+
+  // Only show links for sections that are active (undefined = still loading → show all)
+  const visibleSections = SECTIONS.filter((s) => !activeKeys || activeKeys.includes(s.id))
+  const activeKey = activeKeys ? activeKeys.join(',') : 'all'
 
   const linksRef = useRef(null)
   const indicatorRef = useRef(null)
@@ -47,12 +51,13 @@ export default function Navbar() {
       },
       { rootMargin: '-45% 0px -50% 0px', threshold: 0 }
     )
-    SECTIONS.forEach(({ id }) => {
+    visibleSections.forEach(({ id }) => {
       const el = document.getElementById(id)
       if (el) observer.observe(el)
     })
     return () => observer.disconnect()
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeKey])
 
   // Slide indicator to active link
   useEffect(() => {
@@ -89,7 +94,7 @@ export default function Navbar() {
         <nav className="nav-pill" aria-label="Main navigation">
           <div className="nav-links" ref={linksRef}>
             <span className="nav-indicator" ref={indicatorRef} aria-hidden="true" />
-            {SECTIONS.map((s) => (
+            {visibleSections.map((s) => (
               <a
                 key={s.id}
                 className={`nav-link${active === s.id ? ' active' : ''}`}
@@ -121,7 +126,7 @@ export default function Navbar() {
       </header>
 
       <div className={`mobile-menu${menuOpen ? ' open' : ''}`} id="mobileMenu">
-        {SECTIONS.map((s) => (
+        {visibleSections.map((s) => (
           <a
             key={s.id}
             data-nav={s.id}

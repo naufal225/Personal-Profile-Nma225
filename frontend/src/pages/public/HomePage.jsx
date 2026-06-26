@@ -14,6 +14,7 @@ import ContactSection from '../../components/sections/ContactSection'
 
 export default function HomePage() {
   const {
+    sections,
     hero,
     skills,
     projects,
@@ -24,6 +25,11 @@ export default function HomePage() {
     contacts,
     error,
   } = usePortfolioData()
+
+  // Section visibility. `sections` holds only the ACTIVE sections (from the API).
+  // Until it loads, show everything to avoid a flash of hidden content.
+  const isOn = (key) => !sections || sections.some((s) => s.key === key)
+  const activeKeys = sections?.map((s) => s.key)
 
   // Use the hero photo as the browser-tab favicon
   useEffect(() => {
@@ -58,7 +64,7 @@ export default function HomePage() {
     )
     els.forEach((el) => io.observe(el))
     return () => io.disconnect()
-  }, [hero, skills, projects, experiences, educations, certificates, services, contacts])
+  }, [sections, hero, skills, projects, experiences, educations, certificates, services, contacts])
 
   if (error) {
     return (
@@ -80,19 +86,19 @@ export default function HomePage() {
       </div>
       <div className="bg-ambient" aria-hidden="true" />
 
-      <Navbar />
+      <Navbar activeKeys={activeKeys} />
 
       <main id="top" className='p-2'>
-        <HeroSection hero={hero} />
-        <SkillsSection skills={skills} />
-        <ProjectsSection projects={projects} />
-        <JourneySection experiences={experiences} educations={educations} />
-        <CertificatesSection certificates={certificates} />
-        <ServicesSection services={services} />
-        <ContactSection contacts={contacts} />
+        {isOn('about') && <HeroSection hero={hero} />}
+        {isOn('skills') && <SkillsSection skills={skills} />}
+        {isOn('projects') && <ProjectsSection projects={projects} />}
+        {isOn('journey') && <JourneySection experiences={experiences} educations={educations} />}
+        {isOn('certificates') && <CertificatesSection certificates={certificates} />}
+        {isOn('services') && <ServicesSection services={services} />}
+        {isOn('contact') && <ContactSection contacts={contacts} />}
       </main>
 
-      <Footer />
+      <Footer activeKeys={activeKeys} />
     </>
   )
 }

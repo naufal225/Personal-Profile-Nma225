@@ -11,6 +11,7 @@ import { setFavicon } from './utils/favicon'
 import AdminLayout from './layouts/AdminLayout'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
+import SectionsIndex from './pages/Sections/SectionsIndex'
 
 import ProjectsIndex from './pages/Projects/ProjectsIndex'
 import ProjectCreate from './pages/Projects/ProjectCreate'
@@ -96,6 +97,8 @@ export default function App() {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
         <Route path="/dashboard" element={P(<DashboardPage />)} />
+
+        <Route path="/sections" element={P(<SectionsIndex />)} />
 
         <Route path="/hero" element={P(<HeroEditPage />)} />
 

@@ -7,8 +7,10 @@ const NAV = [
   { id: 'contact', label: 'Contact' },
 ]
 
-export default function Footer() {
+export default function Footer({ activeKeys }) {
   const year = new Date().getFullYear()
+  // undefined activeKeys (still loading) → show all
+  const links = NAV.filter((n) => !activeKeys || activeKeys.includes(n.id))
 
   return (
     <footer className="footer">
@@ -27,7 +29,7 @@ export default function Footer() {
           <div>
             <h4 className="footer-h">Navigation</h4>
             <div className="footer-links">
-              {NAV.map((n) => (
+              {links.map((n) => (
                 <a key={n.id} href={`#${n.id}`}>{n.label}</a>
               ))}
             </div>
