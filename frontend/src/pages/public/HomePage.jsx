@@ -31,6 +31,15 @@ export default function HomePage() {
   const isOn = (key) => !sections || sections.some((s) => s.key === key)
   const activeKeys = sections?.map((s) => s.key)
 
+  // Eyebrow numbers (01, 02, …) follow the active sections, so hiding one
+  // renumbers the rest. `about` (hero) has no number.
+  const NUMBERED = ['skills', 'projects', 'journey', 'certificates', 'services', 'contact']
+  const activeNumbered = NUMBERED.filter(isOn)
+  const numOf = (key) => {
+    const i = activeNumbered.indexOf(key)
+    return i === -1 ? '' : String(i + 1).padStart(2, '0')
+  }
+
   // Use the hero photo as the browser-tab favicon
   useEffect(() => {
     if (hero?.photo_path) setFavicon(hero.photo_path)
@@ -90,12 +99,12 @@ export default function HomePage() {
 
       <main id="top" className='p-2'>
         {isOn('about') && <HeroSection hero={hero} />}
-        {isOn('skills') && <SkillsSection skills={skills} />}
-        {isOn('projects') && <ProjectsSection projects={projects} />}
-        {isOn('journey') && <JourneySection experiences={experiences} educations={educations} />}
-        {isOn('certificates') && <CertificatesSection certificates={certificates} />}
-        {isOn('services') && <ServicesSection services={services} />}
-        {isOn('contact') && <ContactSection contacts={contacts} />}
+        {isOn('skills') && <SkillsSection skills={skills} num={numOf('skills')} />}
+        {isOn('projects') && <ProjectsSection projects={projects} num={numOf('projects')} />}
+        {isOn('journey') && <JourneySection experiences={experiences} educations={educations} num={numOf('journey')} />}
+        {isOn('certificates') && <CertificatesSection certificates={certificates} num={numOf('certificates')} />}
+        {isOn('services') && <ServicesSection services={services} num={numOf('services')} />}
+        {isOn('contact') && <ContactSection contacts={contacts} num={numOf('contact')} />}
       </main>
 
       <Footer activeKeys={activeKeys} />

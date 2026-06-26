@@ -12,13 +12,13 @@ function groupByCategory(skills) {
   return groups
 }
 
-export default function SkillsSection({ skills }) {
+export default function SkillsSection({ skills, num = '01' }) {
   const groups = skills ? groupByCategory(skills) : []
 
   return (
     <section id="skills" className="container section">
       <div className="sec-head reveal">
-        <div className="sec-eyebrow"><span className="bar" /><span className="num">01</span> SKILLS</div>
+        <div className="sec-eyebrow"><span className="bar" /><span className="num">{num}</span> SKILLS</div>
         <h2 className="sec-title">Technologies I use</h2>
         <p className="sec-sub">Tools and technologies for building performant, maintainable web applications.</p>
       </div>

@@ -60,7 +60,7 @@ function ProjectCard({ project }) {
   )
 }
 
-export default function ProjectsSection({ projects }) {
+export default function ProjectsSection({ projects, num = '02' }) {
   const total = projects?.length ?? 0
 
   const [perView, setPerView] = useState(() =>
@@ -131,7 +131,7 @@ export default function ProjectsSection({ projects }) {
   return (
     <section id="projects" className="container section">
       <div className="sec-head reveal">
-        <div className="sec-eyebrow"><span className="bar" /><span className="num">02</span> PROJECTS</div>
+        <div className="sec-eyebrow"><span className="bar" /><span className="num">{num}</span> PROJECTS</div>
         <h2 className="sec-title">Selected work</h2>
         <p className="sec-sub">A few recent projects — from full-stack apps to internal systems.</p>
       </div>

@@ -19,11 +19,11 @@ function ContactIcon({ type }) {
   )
 }
 
-export default function ContactSection({ contacts }) {
+export default function ContactSection({ contacts, num = '06' }) {
   return (
     <section id="contact" className="container section">
       <div className="sec-head reveal">
-        <div className="sec-eyebrow"><span className="bar" /><span className="num">06</span> CONTACT</div>
+        <div className="sec-eyebrow"><span className="bar" /><span className="num">{num}</span> CONTACT</div>
         <h2 className="sec-title">Let's work together</h2>
         <p className="sec-sub">Open to freelance projects, collaborations, and full-time opportunities.</p>
       </div>

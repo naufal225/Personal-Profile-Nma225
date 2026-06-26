@@ -32,7 +32,7 @@ function TierCard({ tier }) {
   )
 }
 
-export default function ServicesSection({ services }) {
+export default function ServicesSection({ services, num = '05' }) {
   const list = services || []
   const [activeIdx, setActiveIdx] = useState(0)
   const active = list[activeIdx] || list[0]
@@ -41,7 +41,7 @@ export default function ServicesSection({ services }) {
   return (
     <section id="services" className="container section">
       <div className="sec-head reveal">
-        <div className="sec-eyebrow"><span className="bar" /><span className="num">05</span> SERVICES</div>
+        <div className="sec-eyebrow"><span className="bar" /><span className="num">{num}</span> SERVICES</div>
         <h2 className="sec-title">Website packages</h2>
         <p className="sec-sub">Clear, transparent pricing for your business. Pick the category and package that fits your needs.</p>
       </div>

@@ -16,7 +16,7 @@ const MedalIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6" /><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526" /></svg>
 )
 
-export default function CertificatesSection({ certificates }) {
+export default function CertificatesSection({ certificates, num = '04' }) {
   const [filter, setFilter] = useState('all')
   const [lightbox, setLightbox] = useState(null)
 
@@ -31,7 +31,7 @@ export default function CertificatesSection({ certificates }) {
   return (
     <section id="certificates" className="container section">
       <div className="sec-head reveal">
-        <div className="sec-eyebrow"><span className="bar" /><span className="num">04</span> CERTIFICATES</div>
+        <div className="sec-eyebrow"><span className="bar" /><span className="num">{num}</span> CERTIFICATES</div>
         <h2 className="sec-title">Achievements &amp; certifications</h2>
         <p className="sec-sub">Competitions, training, and certifications I've completed.</p>
       </div>
