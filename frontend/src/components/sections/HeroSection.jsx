@@ -1,15 +1,33 @@
 export default function HeroSection({ hero }) {
   return (
     <section id="about" className="container hero">
+      {/* Children are ordered badge -> photo -> body in the DOM, which is the
+          mobile (single-column) order. On desktop, grid-template-areas places
+          the badge + body in the left column and the photo on the right. */}
       <div className="hero-grid">
-        <div className="hero-stagger">
-          {hero?.available_for_work !== false && (
-            <span className="badge-status">
-              <span className="pulse"><span /><span /></span>
-              Available for new projects
-            </span>
-          )}
+        {hero?.available_for_work !== false && (
+          <span className="badge-status hero-badge">
+            <span className="pulse"><span /><span /></span>
+            Available for new projects
+          </span>
+        )}
 
+        <div className="portrait-wrap hero-anim hero-photo">
+          <div className="portrait">
+            {hero?.photo_path ? (
+              <img src={hero.photo_path} alt="Naufal Ma'ruf Ashrori" />
+            ) : (
+              <div className="placeholder">
+                <span className="glyph">N</span>
+                <span className="hint">naufal.jpg</span>
+              </div>
+            )}
+            <div className="portrait-ring" />
+          </div>
+          <div className="portrait-tag"><b>&lt;/&gt;</b> full-stack · Laravel + React</div>
+        </div>
+
+        <div className="hero-stagger hero-body">
           <h1 className="hero-name">
             Naufal Ma&apos;ruf<br />Ashrori<span className="accent">.</span>
           </h1>
@@ -40,21 +58,6 @@ export default function HeroSection({ hero }) {
             <div className="stat-div" />
             <div className="stat"><div className="k">12<span className="accent">+</span></div><div className="l">Certificates &amp; competitions</div></div>
           </div>
-        </div>
-
-        <div className="portrait-wrap hero-anim">
-          <div className="portrait">
-            {hero?.photo_path ? (
-              <img src={hero.photo_path} alt="Naufal Ma'ruf Ashrori" />
-            ) : (
-              <div className="placeholder">
-                <span className="glyph">N</span>
-                <span className="hint">naufal.jpg</span>
-              </div>
-            )}
-            <div className="portrait-ring" />
-          </div>
-          <div className="portrait-tag"><b>&lt;/&gt;</b> full-stack · Laravel + React</div>
         </div>
       </div>
     </section>

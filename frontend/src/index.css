@@ -215,7 +215,21 @@ img { display: block; max-width: 100%; }
 
 /* ---------- Hero ---------- */
 .hero { padding-top: 132px; padding-bottom: 88px; position: relative; }
-.hero-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 56px; align-items: center; }
+/* Desktop: badge + body in the left column, photo on the right (unchanged layout).
+   The three children are separate so mobile can flow them badge -> photo -> body. */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  grid-template-areas:
+    "badge photo"
+    "body  photo";
+  column-gap: 56px;
+  row-gap: 0;
+  align-items: center;
+}
+.hero-badge { grid-area: badge; justify-self: start; align-self: end; }
+.hero-photo { grid-area: photo; align-self: center; }
+.hero-body  { grid-area: body; align-self: start; }
 
 @media (max-width: 767px) {
   .hero-grid {
@@ -442,6 +456,7 @@ img { display: block; max-width: 100%; }
 @keyframes heroUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
 /* Visible by default (print, no-JS, reduced-motion all show content). Animate only on screen when JS marks <html class="anim">. */
 @media screen and (prefers-reduced-motion: no-preference) {
+  html.anim .hero-badge { animation: heroUp 0.75s var(--ease) 0.05s both; }
   html.anim .hero-stagger > * { animation: heroUp 0.75s var(--ease) both; }
   html.anim .hero-stagger > *:nth-child(1) { animation-delay: 0.05s; }
   html.anim .hero-stagger > *:nth-child(2) { animation-delay: 0.13s; }
@@ -486,7 +501,13 @@ img { display: block; max-width: 100%; }
   .nav-links, .nav-sep { display: none; }
   .nav-toggle { display: grid; }
   .nav { padding: 16px; justify-content: flex-end; }
-  .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+  .hero-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas: "badge" "photo" "body";
+    column-gap: 0;
+    row-gap: 28px;
+  }
+  .hero-badge { align-self: start; margin-bottom: 0; } /* photo -> body spacing via row-gap */
   .portrait-wrap { max-width: 360px; }
   .journey-grid { grid-template-columns: 1fr; gap: 44px; }
   .cert-grid { grid-template-columns: repeat(2, 1fr); }
